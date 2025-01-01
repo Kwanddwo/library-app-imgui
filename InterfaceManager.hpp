@@ -9,14 +9,8 @@
 
 typedef enum { login_page, register_page } page;
 
-// State machines for interfaces? Think about later
-//class Interface {
-//public:
-//    virtual void render() = 0;
-//};
-
 struct AppState {
-    page curr_page;
+    page curr_page = login_page;
 
     // User form
     char userEmail[100] = "";
@@ -44,7 +38,7 @@ struct AppState {
 };
 
 class InterfaceApp {
-    Auth auth;
+    Auth& auth;
     AppState state;
 
     void ShowErrorModal(AppState& state) {
@@ -65,42 +59,54 @@ class InterfaceApp {
             }
         }
     }
+
 public:
-    InterfaceApp(Auth& auth): auth(auth){}
+    InterfaceApp(Auth& auth) : auth(auth) {}
 
     void renderLoginRegister(ImVec2 DisplaySize) {
-        if (!auth.isLoggedIn) {
+        if (!auth.getIsLoggedIn()) {
             if (state.curr_page == login_page) {
                 ImGui::Begin("Login Page", NULL, PARENT_FLAGS);
                 ImGui::InputText("Email", state.userEmail, 100);
-                ImGui::InputText("Password", state.userPassword, 50, ImGuiInputTextFlags_Password);
+                ImGui::InputText("Password", state.userPassword, 64, ImGuiInputTextFlags_Password);
                 if (ImGui::Button("Login")) {
-                    if (!auth.login(state.userEmail, state.userPassword)) {
-                        state.errorMessage = "Incorrect credentials";
+                    try {
+                        if (!auth.login(state.userEmail, state.userPassword)) {
+                            state.errorMessage = "Incorrect credentials";
+                            state.showErrorModal = true;
+                        }
+                    }
+                    catch (const std::exception& e) {
+                        state.errorMessage = e.what();
                         state.showErrorModal = true;
                     }
                 }
                 ImGui::SameLine();
-                if (ImGui::Button("Register"))
+                if (ImGui::Button("Register")) {
                     state.curr_page = register_page;
-               /* if (is_login_error)
-                    ImGui::Text("Error: Credentials are incorrect");*/
+                }
                 ImGui::End();
             }
             if (state.curr_page == register_page) {
                 ImGui::Begin("Register Page", NULL, PARENT_FLAGS);
-                ImGui::InputText("First Name", state.userFirstName, 100);
-                ImGui::InputText("Last Name", state.userLastName, 100);
+                ImGui::InputText("First Name", state.userFirstName, 50);
+                ImGui::InputText("Last Name", state.userLastName, 50);
                 ImGui::InputText("Email", state.userEmail, 100);
-                ImGui::InputText("Password", state.userPassword, 50);
+                ImGui::InputText("Password", state.userPassword, 64);
                 if (ImGui::Button("Register")) {
-                    auth.registerUser(
-                        state.userEmail, 
-                        state.userPassword, 
-                        state.userFirstName, 
-                        state.userLastName
-                    );
-                    state.curr_page = login_page;
+                    try {
+                        if (!auth.registerUser(state.userEmail, state.userPassword, state.userFirstName, state.userLastName)) {
+                            state.errorMessage = "Registration failed. Email might already be in use.";
+                            state.showErrorModal = true;
+                        }
+                        else {
+                            state.curr_page = login_page;
+                        }
+                    }
+                    catch (const std::exception& e) {
+                        state.errorMessage = e.what();
+                        state.showErrorModal = true;
+                    }
                 }
                 ImGui::SameLine();
                 if (ImGui::Button("Login Page")) {
@@ -109,35 +115,30 @@ public:
                 ImGui::End();
             }
         }
-        if (auth.isLoggedIn) {
+        else {
             ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::SetNextWindowSize(ImVec2(
-                DisplaySize.x, DisplaySize.y
-            ));
+            ImGui::SetNextWindowSize(ImVec2(DisplaySize.x, DisplaySize.y));
             ImGui::Begin("Welcome Page", NULL, PARENT_FLAGS);
             ImGui::Text("Hello!");
             ImGui::Text("First name: ");
             ImGui::SameLine();
-            ImGui::Text("%s", auth.currUser.getFirstName().c_str());
+            ImGui::Text("%s", auth.getCurrUser().getFirstName().c_str());
             ImGui::Text("Last name: ");
             ImGui::SameLine();
-            ImGui::Text("%s", auth.currUser.getLastName().c_str());
+            ImGui::Text("%s", auth.getCurrUser().getLastName().c_str());
             ImGui::Text("Email: ");
             ImGui::SameLine();
-            ImGui::Text("%s", auth.currUser.getEmail().c_str());
+            ImGui::Text("%s", auth.getCurrUser().getEmail().c_str());
             ImGui::Text("Role: ");
             ImGui::SameLine();
-            ImGui::Text("%s", User::userRoleToString(auth.currUser.getRole()).c_str());
+            ImGui::Text("%s", User::userRoleToString(auth.getCurrUser().getRole()).c_str());
             ImGui::End();
         }
-
     }
+
     void render(ImVec2 DisplaySize) {
         ImGui::SetNextWindowPos(ImVec2(0, 0));
-        ImGui::SetNextWindowSize(ImVec2(
-            DisplaySize.x, DisplaySize.y
-        ));
-        //ImGui::ShowDemoWindow(&show_demo_window);
+        ImGui::SetNextWindowSize(ImVec2(DisplaySize.x, DisplaySize.y));
         this->renderLoginRegister(DisplaySize);
         this->ShowErrorModal(state);
     }

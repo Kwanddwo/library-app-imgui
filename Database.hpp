@@ -3,32 +3,35 @@
 #include <string>
 #include "DatabaseConnection.hpp"
 #include "Models.hpp"
-//#include <exception>
 
 class BaseDAO {
 protected:
-	DatabaseConnection db;
+    DatabaseConnection db;
 public:
-	BaseDAO(DatabaseConnection& db) : db(db) {};
+    BaseDAO(DatabaseConnection& db) : db(db) {}
     DatabaseConnection& getDB() { return db; }
 };
 
-class UserDAO: BaseDAO {
+class UserDAO : public BaseDAO {
 public:
-	UserDAO(DatabaseConnection& db) : BaseDAO(db) {};
+    UserDAO(DatabaseConnection& db) : BaseDAO(db) {}
 
     std::string getHash(const std::string& email) {
-        std::unique_ptr<sql::Connection> conn(db.getConnection());
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("SELECT passwordHash FROM users WHERE email = ?"));
         pstmt->setString(1, email);
         std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-        res->next();
-        return res->getString("passwordHash");
+        if (res->next()) {
+            return res->getString("passwordHash");
+        }
+        throw std::runtime_error("Email not found");
     }
+
     void insertUser(const std::string& email, const std::string& firstName, const std::string& lastName, const std::string& passwordHash, const std::string& userRole) {
-        std::unique_ptr<sql::Connection> conn(db.getConnection());
-        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(
-            "INSERT INTO users (email, firstName, lastName, passwordHash, userRole) VALUES (?, ?, ?, ?, ?)"));
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("INSERT INTO users (email, firstName, lastName, passwordHash, userRole) VALUES (?, ?, ?, ?, ?)"));
         pstmt->setString(1, email);
         pstmt->setString(2, firstName);
         pstmt->setString(3, lastName);
@@ -38,7 +41,8 @@ public:
     }
 
     void updateUser(int id, const std::string& email, const std::string& firstName, const std::string& lastName, const std::string& userRole) {
-        std::unique_ptr<sql::Connection> conn(db.getConnection());
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(
             "UPDATE users SET email = ?, firstName = ?, lastName = ?, userRole = ? WHERE id = ?"));
         pstmt->setString(1, email);
@@ -50,7 +54,8 @@ public:
     }
 
     void updateUserName(const std::string& email, const std::string& firstName, const std::string& lastName) {
-        std::unique_ptr<sql::Connection> conn(db.getConnection());
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(
             "UPDATE users SET firstName = ?, lastName = ? WHERE email = ?"));
         pstmt->setString(1, firstName);
@@ -60,22 +65,24 @@ public:
     }
 
     void deleteUser(int id) {
-        std::unique_ptr<sql::Connection> conn(db.getConnection());
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("DELETE FROM users WHERE id = ?"));
         pstmt->setInt(1, id);
         pstmt->execute();
     }
 
     User findUserById(int id) {
-        std::unique_ptr<sql::Connection> conn(db.getConnection());
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("SELECT * FROM users WHERE id = ?"));
         pstmt->setInt(1, id);
         std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-        
+
         if (!res->next()) {
-            throw "id not found";
+            throw std::runtime_error("ID not found");
         }
-        
+
         User user(
             id,
             res->getString("email"),
@@ -87,13 +94,14 @@ public:
         return user;
     }
 
-    User findUserByEmail(std::string email) {
-        std::unique_ptr<sql::Connection> conn(db.getConnection());
+    User findUserByEmail(const std::string& email) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("SELECT * FROM users WHERE email = ?"));
         pstmt->setString(1, email);
         std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
         if (!res->next()) {
-            throw "id not found";
+            throw std::runtime_error("Email not found");
         }
 
         User user(
@@ -108,7 +116,8 @@ public:
     }
 
     std::vector<User> findAllUsers() {
-        std::unique_ptr<sql::Connection> conn(db.getConnection());
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
         std::unique_ptr<sql::Statement> stmt(conn->createStatement());
         std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM users;"));
         std::vector<User> vUser;
@@ -125,11 +134,13 @@ public:
         return vUser;
     }
 
-    bool doesEmailExist(std::string email) {
-        std::unique_ptr<sql::Connection> conn(db.getConnection());
+    bool doesEmailExist(const std::string& email) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("SELECT * FROM users WHERE email = ?"));
         pstmt->setString(1, email);
         std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
-        return res->next() ? true : false;
+        return res->next();
     }
 };
+

@@ -17,102 +17,53 @@
 
 using namespace std;
 
-//for demonstration only. never save your password in the code!
-
 int main() {
-    //sql::Driver* driver;
-    //sql::Connection* con;
-    //sql::Statement* stmt;
-    //sql::PreparedStatement* pstmt;
+    std::string host, user, password;
+    std::cout << "host: "; std::cin >> host;
+    std::cout << "username: "; std::cin >> user;
+    std::cout << "password: "; std::cin >> password;
+    DatabaseConnection dbconn(host, user, password, "library");
+    if (!dbconn.isConnected()) {
+        std::cerr << "Failed to connect to the database." << std::endl;
+        return 1;
+    }
+    UserDAO userdb(dbconn);
+    Auth auth = Auth(userdb);
+    InterfaceApp uiManager(auth);
 
-    //try
-    //{
-    //    driver = get_driver_instance();
-    //    con = driver->connect(server, username, password);
-    //}
-    //catch (sql::SQLException e)
-    //{
-    //    cout << "Could not connect to server. Error message: " << e.what() << endl;
-    //    system("pause");
-    //    exit(1);
-    //}
+    glfwInit();
 
-    ////please create database "quickstartdb" ahead of time
-    //con->setSchema("quickstartdb");
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    //stmt = con->createStatement();
-    //stmt->execute("DROP TABLE IF EXISTS inventory");
-    //cout << "Finished dropping table (if existed)" << endl;
-    //stmt->execute("CREATE TABLE inventory (id serial PRIMARY KEY, name VARCHAR(50), quantity INTEGER);");
-    //cout << "Finished creating table" << endl;
-    //delete stmt;
+    GLFWwindow* window = glfwCreateWindow(600, 600, "Library", NULL, NULL);
+    if (window == NULL) {
+        std::cout << "GLFW couldn't create window" << std::endl;
+        glfwTerminate();
+        return 0;
+    }
+    glfwMakeContextCurrent(window);
 
-    //pstmt = con->prepareStatement("INSERT INTO inventory(name, quantity) VALUES(?,?)");
-    //pstmt->setString(1, "banana");
-    //pstmt->setInt(2, 150);
-    //pstmt->execute();
-    //cout << "One row inserted." << endl;
+    gladLoadGL();
+    glViewport(0, 0, 600, 600);
 
-    //pstmt->setString(1, "orange");
-    //pstmt->setInt(2, 154);
-    //pstmt->execute();
-    //cout << "One row inserted." << endl;
+    // ImGui integration
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
 
-    //pstmt->setString(1, "apple");
-    //pstmt->setInt(2, 100);
-    //pstmt->execute();
-    //cout << "One row inserted." << endl;
+    // Background Color
+    glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glfwSwapBuffers(window);
 
-    //delete pstmt;
-    //delete con;
-    //system("pause");
-
-	std::string host, user, password;
-	std::cout << "host: "; std::cin >> host;
-	std::cout << "username: "; std::cin >> user;
-	std::cout << "password: "; std::cin >> password;
-	DatabaseConnection dbconn(host, user, password, "library");
-	cout << "got here";
-	UserDAO userdb(dbconn);
-	cout << "got here";
-	Auth auth = Auth(userdb);
-	cout << "got here";
-	InterfaceApp uiManager(auth);
-	cout << "got here";
-
-	glfwInit();
-
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	GLFWwindow* window = glfwCreateWindow(600, 600, "Library", NULL, NULL);
-	if (window == NULL) {
-		std::cout << "GLFW couldn't create window" << std::endl;
-		glfwTerminate();
-		return 0;
-	}
-	glfwMakeContextCurrent(window);
-
-	gladLoadGL();
-	glViewport(0, 0, 600, 600);
-
-	// ImGui integration
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(window, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
-
-	// Background Color
-	glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glfwSwapBuffers(window);
-
-	while (!glfwWindowShouldClose(window)) {
-		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+    while (!glfwWindowShouldClose(window)) {
+        glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         glfwPollEvents();                   // Process events
         ImGui_ImplOpenGL3_NewFrame();       // Prepare ImGui
@@ -126,15 +77,16 @@ int main() {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
-	}
+    }
 
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui::DestroyContext();
-	glfwDestroyWindow(window);
-	glfwTerminate();
-	return 0;
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+    glfwDestroyWindow(window);
+    glfwTerminate();
+    return 0;
 }
+
 
 // main.cpp
 //#include <imgui.h>

@@ -9,62 +9,67 @@ using namespace std;
 
 class Auth {
     UserDAO userdb;
+    User currUser;
+    bool isLoggedIn;
 
-    void setCurrUser(string email) {
+    void setCurrUser(const string& email) {
         currUser = userdb.findUserByEmail(email);
     }
 
     void removeCurrUser() {
         currUser = User();
     }
+
 public:
-    User currUser;
-    bool isLoggedIn;
+    Auth(UserDAO& userdb) : userdb(userdb), isLoggedIn(false) {}
 
-    Auth(UserDAO& userdb) : userdb(userdb) { 
-        isLoggedIn = false;
-    };
+    bool getIsLoggedIn() const {
+        return isLoggedIn;
+    }
 
-    string getHash(string email) {
+    User getCurrUser() const {
+        return currUser;
+    }
+
+    string getHash(const string& email) {
         return userdb.getHash(email);
     }
 
-    string createHash(string password) {
+    string createHash(const string& password) const {
         SHA256 sha;
         return sha(password);
     }
 
-    bool testPassword(string password, string hash) {
+    bool testPassword(const string& password, const string& hash) const {
         SHA256 sha256;
         return hash == sha256(password);
-    };
+    }
 
-    bool registerUser(string email, string password, string first, string last) {
+    bool registerUser(const string& email, const string& password, const string& first, const string& last) {
         if (userdb.doesEmailExist(email))
             return false;
-        SHA256 sha256;
-        string hash = sha256(password);
+        string hash = createHash(password);
         userdb.insertUser(email, first, last, hash, "member");
         return true;
-    };
+    }
 
-    bool login(string email, string password) {
+    bool login(const string& email, const string& password) {
         if (!userdb.doesEmailExist(email)) {
             return false;
         }
-        std::cout << "email exists apparently...\n";
-        string hash = this->getHash(email);
-        if (!testPassword(password, hash))
+        string hash = getHash(email);
+        if (!testPassword(password, hash)) {
             return false;
-        hash = "";
-        this->isLoggedIn = true;
-        this->setCurrUser(email);
+        }
+        isLoggedIn = true;
+        setCurrUser(email);
         return true;
     }
+
     void logout() {
-        if (!this->isLoggedIn)
+        if (!isLoggedIn)
             return;
-        this->removeCurrUser();
-        this->isLoggedIn = false;
+        removeCurrUser();
+        isLoggedIn = false;
     }
 };

@@ -12,7 +12,7 @@
 class DatabaseConnection {
 private:
     sql::Driver* driver;
-    sql::Connection* conn;
+    std::unique_ptr<sql::Connection> conn;
 
     const std::string host;
     const std::string user;
@@ -28,7 +28,7 @@ public:
     ) : host(host), user(user), password(password), database(database) {
         try {
             driver = get_driver_instance();
-            conn = driver->connect(host, user, password);
+            conn = std::unique_ptr<sql::Connection>(driver->connect(host, user, password));
             conn->setSchema(database);
         }
         catch (sql::SQLException& e) {
@@ -42,7 +42,7 @@ public:
         : host(other.host), user(other.user), password(other.password), database(other.database) {
         try {
             driver = get_driver_instance();
-            conn = driver->connect(host, user, password);
+            conn = std::unique_ptr<sql::Connection>(driver->connect(host, user, password));
             conn->setSchema(database);
         }
         catch (sql::SQLException& e) {
@@ -52,11 +52,9 @@ public:
         }
     }
 
-    ~DatabaseConnection() {
-        if (conn) {
-            delete conn;
-        }
-    }
+    sql::Connection* getConnection() { return conn.get(); }
 
-    sql::Connection* getConnection() { return conn; }
+    bool isConnected() const {
+        return conn && conn->isValid();
+    }
 };
