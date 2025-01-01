@@ -133,7 +133,6 @@ public:
 
     }
     void render(ImVec2 DisplaySize) {
-        ImGui::NewFrame();
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(
             DisplaySize.x, DisplaySize.y
@@ -141,9 +140,5 @@ public:
         //ImGui::ShowDemoWindow(&show_demo_window);
         this->renderLoginRegister(DisplaySize);
         this->ShowErrorModal(state);
-
-
-        // Rendering
-        ImGui::Render();
     }
 };

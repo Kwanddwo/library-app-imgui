@@ -95,7 +95,7 @@ int main() {
 	glfwMakeContextCurrent(window);
 
 	gladLoadGL();
-	glViewport(0, 0, 800, 800);
+	glViewport(0, 0, 600, 600);
 
 	// ImGui integration
 	IMGUI_CHECKVERSION();
@@ -114,17 +114,18 @@ int main() {
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-		ImGui::NewFrame();
+        glfwPollEvents();                   // Process events
+        ImGui_ImplOpenGL3_NewFrame();       // Prepare ImGui
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
-		uiManager.render(io.DisplaySize);
+        // Render ImGui interface
+        uiManager.render(io.DisplaySize);
 
-		ImGui::Render();
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		glfwSwapBuffers(window);
-		glfwPollEvents(); // Processes the events
+        // Finalize rendering
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        glfwSwapBuffers(window);
 	}
 
 	ImGui_ImplOpenGL3_Shutdown();
