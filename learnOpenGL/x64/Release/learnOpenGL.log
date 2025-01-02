@@ -1,0 +1,4 @@
+﻿  imgui_impl_glfw.cpp
+C:\Users\p\Source\Repos\library-app-imgui\imgui\imgui_impl_glfw.cpp(97,10): error C1083: Impossible d'ouvrir le fichier include : 'GLFW/glfw3.h' : No such file or directory
+  main.cpp
+C:\Users\p\Source\Repos\library-app-imgui\main.cpp(1,10): error C1083: Impossible d'ouvrir le fichier include : 'imgui.h' : No such file or directory
