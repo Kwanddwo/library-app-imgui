@@ -88,7 +88,7 @@ public:
             res->getString("email"),
             res->getString("firstName"),
             res->getString("lastName"),
-            User::stringToUserRole(res->getString("role"))
+            User::stringToUserRole(res->getString("userRole"))
         );
 
         return user;
@@ -109,7 +109,7 @@ public:
             email,
             res->getString("firstName"),
             res->getString("lastName"),
-            User::stringToUserRole(res->getString("role"))
+            User::stringToUserRole(res->getString("userRole"))
         );
 
         return user;
@@ -127,7 +127,7 @@ public:
                 res->getString("email"),
                 res->getString("firstName"),
                 res->getString("lastName"),
-                User::stringToUserRole(res->getString("role"))
+                User::stringToUserRole(res->getString("userRole"))
             );
             vUser.push_back(user);
         }
