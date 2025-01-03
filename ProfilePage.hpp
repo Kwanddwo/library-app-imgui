@@ -1,12 +1,12 @@
 #pragma once
 #include "Page.hpp"
 
-class WelcomePage : public Page {
+class ProfilePage : public Page {
     Auth& auth;
 
 public:
-    WelcomePage(Auth& auth) : auth(auth) {
-        strncpy_s(title, "Welcome Page", sizeof(title));
+    ProfilePage(Auth& auth) : auth(auth) {
+        strncpy_s(title, auth.getCurrUser().getFullName().c_str(), sizeof(title));
     }
 
     void render(AppState& state, std::shared_ptr<PageState> pageState) override {

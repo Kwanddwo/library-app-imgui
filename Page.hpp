@@ -1,6 +1,20 @@
 #pragma once
+#include <string>
+#include <memory>
+#include "imgui.h"
 
-enum class PageType { Login, Register, Welcome };
+enum class PageType { 
+    Login, 
+    Register, 
+    Profile, 
+    BorrowingsHistory,
+    BorrowForm,
+    Books,
+    Borrowings, 
+    Members, 
+    Librarians,
+    Statistics
+};
 
 struct AppState {
     bool showErrorModal = false;

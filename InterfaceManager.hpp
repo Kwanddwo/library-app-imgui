@@ -6,7 +6,22 @@
 
 #include "LoginPage.hpp"
 #include "RegisterPage.hpp"
-#include "WelcomePage.hpp"
+
+// Anyone who is logged in
+#include "BooksPage.hpp"
+#include "ProfilePage.hpp"
+
+// Member pages
+#include "BorrowingsHistoryPage.hpp"
+#include "BorrowFormPage.hpp"
+
+// Admin & librarian pages
+#include "BorrowingsPage.hpp"
+#include "MembersPage.hpp"
+
+// Admin pages
+#include "LibrariansPage.hpp"
+#include "StatisticsPage.hpp"
 
 #ifndef PARENT_FLAGS
 #define PARENT_FLAGS ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse
@@ -43,9 +58,55 @@ class InterfaceApp {
 			auth.logout();
 			this->setPage(PageType::Login, std::make_shared<LoginPageState>());
 		}
+
+        if (auth.getCurrUser().canViewBooks()) {
+            ImGui::SameLine();
+            if (ImGui::Button("Books")) {
+                auth.logout();
+                this->setPage(PageType::Books, nullptr);
+            }
+        }
+
+		if (auth.getCurrUser().canReserveBooks()) {
+			ImGui::SameLine();
+			if (ImGui::Button("Borrowings History")) {
+				this->setPage(PageType::BorrowingsHistory, nullptr);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Borrow Form")) {
+				this->setPage(PageType::BorrowForm, nullptr);
+			}
+		}
+
+		if (auth.getCurrUser().canManageMembers()) {
+            ImGui::SameLine();
+            if (ImGui::Button("Borrowings")) {
+                this->setPage(PageType::Borrowings, nullptr);
+            }
+			ImGui::SameLine();
+			if (ImGui::Button("Members")) {
+				this->setPage(PageType::Members, nullptr);
+			}
+			
+		}
+
+        if (auth.getCurrUser().canManageAllUsers()) {
+            ImGui::SameLine();
+            if (ImGui::Button("Librarians")) {
+                this->setPage(PageType::Librarians, nullptr);
+            }
+        }
+
+        if (auth.getCurrUser().canViewStatistics()) {
+            ImGui::SameLine();
+            if (ImGui::Button("Statistics")) {
+                this->setPage(PageType::Statistics, nullptr);
+            }
+        }
+
 		ImGui::SameLine();
-		if (ImGui::Button("Welcome")) {
-			this->setPage(PageType::Welcome, nullptr);
+		if (ImGui::Button("Profile")) {
+			this->setPage(PageType::Profile, nullptr);
 		}
 	}
 
@@ -62,7 +123,7 @@ public:
             currentPage = std::make_unique<LoginPage>(
                 auth,
                 [this](std::shared_ptr<PageState> state) { this->setPage(PageType::Register, std::make_shared<RegisterPageState>()); },
-                [this]() { this->setPage(PageType::Welcome, nullptr); }
+                [this]() { this->setPage(PageType::Books, nullptr); }
             );
             break;
         case PageType::Register:
@@ -71,10 +132,38 @@ public:
                 [this](std::shared_ptr<PageState> state) { this->setPage(PageType::Login, state); }
             );
             break;
-        case PageType::Welcome:
-            currentPage = std::make_unique<WelcomePage>(auth);
+        case PageType::Profile:
+            currentPage = std::make_unique<ProfilePage>(auth);
             break;
+        case PageType::Books:
+            currentPage = std::make_unique<BooksPage>();
+            break;
+
+
+        case PageType::BorrowForm:
+            currentPage = std::make_unique<BorrowFormPage>();
+            break;
+        case PageType::BorrowingsHistory:
+            currentPage = std::make_unique<BorrowingsHistoryPage>();
+            break;
+
+
+		case PageType::Borrowings:
+			currentPage = std::make_unique<BorrowingsPage>();
+			break;
+		case PageType::Members:
+			currentPage = std::make_unique<MembersPage>();
+			break;
+
+
+		case PageType::Librarians:
+            currentPage = std::make_unique<LibrariansPage>();
+			break;
+		case PageType::Statistics:
+			currentPage = std::make_unique<StatisticsPage>();
+			break;
         }
+        
     }
 
     void render(ImVec2 DisplaySize) {
@@ -82,7 +171,7 @@ public:
         ImGui::SetNextWindowSize(ImVec2(DisplaySize.x, DisplaySize.y));
         ImGui::Begin(currentPage->title, NULL, PARENT_FLAGS);
         
-        if (currentPageType >= PageType::Welcome) {
+        if (currentPageType > PageType::Register) {
             this->renderNavBar();
         }
         currentPage->render(state, currentPageState);
