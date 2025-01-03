@@ -2,46 +2,39 @@
 
 #include "imgui.h"
 #include "Authentification.hpp"
+#include <memory>
+
+#include "LoginPage.hpp"
+#include "RegisterPage.hpp"
+
+// Anyone who is logged in
+#include "BooksPage.hpp"
+#include "ProfilePage.hpp"
+
+// Member pages
+#include "BorrowingsHistoryPage.hpp"
+#include "BorrowFormPage.hpp"
+
+// Admin & librarian pages
+#include "BorrowingsPage.hpp"
+#include "MembersPage.hpp"
+
+// Admin pages
+#include "LibrariansPage.hpp"
+#include "StatisticsPage.hpp"
 
 #ifndef PARENT_FLAGS
 #define PARENT_FLAGS ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse
 #endif
 
-typedef enum { login_page, register_page } page;
-
-struct AppState {
-    page curr_page = login_page;
-
-    // User form
-    char userEmail[100] = "";
-    char userFirstName[50] = "";
-    char userLastName[50] = "";
-    char userPassword[64] = "";
-    char userRole[20] = "";
-    int selectedUserId = -1;
-
-    // Book form
-    char bookIsbn[14] = "";
-    char bookTitle[101] = "";
-    int bookPubYear = 2024;
-    int bookCopies = 0;
-    int bookPages = 0;
-    int selectedBookId = -1;
-
-    // Search buffers
-    char searchUserId[10] = "";
-    char searchBookId[10] = "";
-
-    // Modal flags
-    bool showErrorModal = false;
-    std::string errorMessage;
-};
-
 class InterfaceApp {
     Auth& auth;
     AppState state;
+    PageType currentPageType;
+    std::unique_ptr<Page> currentPage;
+    std::shared_ptr<PageState> currentPageState;
 
-    void ShowErrorModal(AppState& state) {
+    void ShowErrorModal() {
         if (state.showErrorModal) {
             ImGui::OpenPopup("Error");
             ImVec2 center = ImGui::GetMainViewport()->GetCenter();
@@ -60,86 +53,130 @@ class InterfaceApp {
         }
     }
 
-public:
-    InterfaceApp(Auth& auth) : auth(auth) {}
+	void renderNavBar() {
+		if (ImGui::Button("Logout")) {
+			auth.logout();
+			this->setPage(PageType::Login, std::make_shared<LoginPageState>());
+		}
 
-    void renderLoginRegister(ImVec2 DisplaySize) {
-        if (!auth.getIsLoggedIn()) {
-            if (state.curr_page == login_page) {
-                ImGui::Begin("Login Page", NULL, PARENT_FLAGS);
-                ImGui::InputText("Email", state.userEmail, 100);
-                ImGui::InputText("Password", state.userPassword, 64, ImGuiInputTextFlags_Password);
-                if (ImGui::Button("Login")) {
-                    try {
-                        if (!auth.login(state.userEmail, state.userPassword)) {
-                            state.errorMessage = "Incorrect credentials";
-                            state.showErrorModal = true;
-                        }
-                    }
-                    catch (const std::exception& e) {
-                        state.errorMessage = e.what();
-                        state.showErrorModal = true;
-                    }
-                }
-                ImGui::SameLine();
-                if (ImGui::Button("Register")) {
-                    state.curr_page = register_page;
-                }
-                ImGui::End();
-            }
-            if (state.curr_page == register_page) {
-                ImGui::Begin("Register Page", NULL, PARENT_FLAGS);
-                ImGui::InputText("First Name", state.userFirstName, 50);
-                ImGui::InputText("Last Name", state.userLastName, 50);
-                ImGui::InputText("Email", state.userEmail, 100);
-                ImGui::InputText("Password", state.userPassword, 64);
-                if (ImGui::Button("Register")) {
-                    try {
-                        if (!auth.registerUser(state.userEmail, state.userPassword, state.userFirstName, state.userLastName)) {
-                            state.errorMessage = "Registration failed. Email might already be in use.";
-                            state.showErrorModal = true;
-                        }
-                        else {
-                            state.curr_page = login_page;
-                        }
-                    }
-                    catch (const std::exception& e) {
-                        state.errorMessage = e.what();
-                        state.showErrorModal = true;
-                    }
-                }
-                ImGui::SameLine();
-                if (ImGui::Button("Login Page")) {
-                    state.curr_page = login_page;
-                }
-                ImGui::End();
+        if (auth.getCurrUser().canViewBooks()) {
+            ImGui::SameLine();
+            if (ImGui::Button("Books")) {
+                auth.logout();
+                this->setPage(PageType::Books, nullptr);
             }
         }
-        else {
-            ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::SetNextWindowSize(ImVec2(DisplaySize.x, DisplaySize.y));
-            ImGui::Begin("Welcome Page", NULL, PARENT_FLAGS);
-            ImGui::Text("Hello!");
-            ImGui::Text("First name: ");
+
+		if (auth.getCurrUser().canReserveBooks()) {
+			ImGui::SameLine();
+			if (ImGui::Button("Borrowings History")) {
+				this->setPage(PageType::BorrowingsHistory, nullptr);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Borrow Form")) {
+				this->setPage(PageType::BorrowForm, nullptr);
+			}
+		}
+
+		if (auth.getCurrUser().canManageMembers()) {
             ImGui::SameLine();
-            ImGui::Text("%s", auth.getCurrUser().getFirstName().c_str());
-            ImGui::Text("Last name: ");
+            if (ImGui::Button("Borrowings")) {
+                this->setPage(PageType::Borrowings, nullptr);
+            }
+			ImGui::SameLine();
+			if (ImGui::Button("Members")) {
+				this->setPage(PageType::Members, nullptr);
+			}
+			
+		}
+
+        if (auth.getCurrUser().canManageAllUsers()) {
             ImGui::SameLine();
-            ImGui::Text("%s", auth.getCurrUser().getLastName().c_str());
-            ImGui::Text("Email: ");
-            ImGui::SameLine();
-            ImGui::Text("%s", auth.getCurrUser().getEmail().c_str());
-            ImGui::Text("Role: ");
-            ImGui::SameLine();
-            ImGui::Text("%s", User::userRoleToString(auth.getCurrUser().getRole()).c_str());
-            ImGui::End();
+            if (ImGui::Button("Librarians")) {
+                this->setPage(PageType::Librarians, nullptr);
+            }
         }
+
+        if (auth.getCurrUser().canViewStatistics()) {
+            ImGui::SameLine();
+            if (ImGui::Button("Statistics")) {
+                this->setPage(PageType::Statistics, nullptr);
+            }
+        }
+
+		ImGui::SameLine();
+		if (ImGui::Button("Profile")) {
+			this->setPage(PageType::Profile, nullptr);
+		}
+	}
+
+public:
+    InterfaceApp(Auth& auth) : auth(auth) {
+        this->setPage(PageType::Login, std::make_shared<LoginPageState>());
+    }
+
+    void setPage(PageType pageType, std::shared_ptr<PageState> pageState) {
+        currentPageType = pageType;
+        currentPageState = pageState;
+        switch (pageType) {
+        case PageType::Login:
+            currentPage = std::make_unique<LoginPage>(
+                auth,
+                [this](std::shared_ptr<PageState> state) { this->setPage(PageType::Register, std::make_shared<RegisterPageState>()); },
+                [this]() { this->setPage(PageType::Books, nullptr); }
+            );
+            break;
+        case PageType::Register:
+            currentPage = std::make_unique<RegisterPage>(
+                auth,
+                [this](std::shared_ptr<PageState> state) { this->setPage(PageType::Login, state); }
+            );
+            break;
+        case PageType::Profile:
+            currentPage = std::make_unique<ProfilePage>(auth);
+            break;
+        case PageType::Books:
+            currentPage = std::make_unique<BooksPage>();
+            break;
+
+
+        case PageType::BorrowForm:
+            currentPage = std::make_unique<BorrowFormPage>();
+            break;
+        case PageType::BorrowingsHistory:
+            currentPage = std::make_unique<BorrowingsHistoryPage>();
+            break;
+
+
+		case PageType::Borrowings:
+			currentPage = std::make_unique<BorrowingsPage>();
+			break;
+		case PageType::Members:
+			currentPage = std::make_unique<MembersPage>();
+			break;
+
+
+		case PageType::Librarians:
+            currentPage = std::make_unique<LibrariansPage>();
+			break;
+		case PageType::Statistics:
+			currentPage = std::make_unique<StatisticsPage>();
+			break;
+        }
+        
     }
 
     void render(ImVec2 DisplaySize) {
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(DisplaySize.x, DisplaySize.y));
-        this->renderLoginRegister(DisplaySize);
-        this->ShowErrorModal(state);
+        ImGui::Begin(currentPage->title, NULL, PARENT_FLAGS);
+        
+        if (currentPageType > PageType::Register) {
+            this->renderNavBar();
+        }
+        currentPage->render(state, currentPageState);
+		
+        ImGui::End();
+        ShowErrorModal();
     }
 };

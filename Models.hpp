@@ -42,7 +42,9 @@ public:
     std::string getEmail() { return email; };
     std::string getFirstName() { return firstName; };
     std::string getLastName() { return lastName; };
+	std::string getFullName() { return firstName + " " + lastName; };
     UserRole getRole() const { return role; }
+
     static UserRole stringToUserRole(std::string role) {
         if (role == "member") {
             return UserRole::MEMBER;

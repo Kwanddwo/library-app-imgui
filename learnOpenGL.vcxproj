@@ -159,6 +159,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BorrowFormPage.hpp" />
+    <ClCompile Include="BorrowingsPage.hpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="imgui\imgui.cpp" />
     <ClCompile Include="imgui\imgui_demo.cpp" />
@@ -173,6 +175,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Authentification.hpp" />
+    <ClInclude Include="BooksPage.hpp" />
+    <ClInclude Include="BorrowingsHistoryPage.hpp" />
     <ClInclude Include="Database.hpp" />
     <ClInclude Include="DatabaseConnection.hpp" />
     <ClInclude Include="imgui\imconfig.h" />
@@ -184,8 +188,15 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="LibrariansPage.hpp" />
+    <ClInclude Include="LoginPage.hpp" />
+    <ClInclude Include="MembersPage.hpp" />
     <ClInclude Include="Models.hpp" />
+    <ClInclude Include="Page.hpp" />
+    <ClInclude Include="RegisterPage.hpp" />
     <ClInclude Include="sha256\sha256.h" />
+    <ClInclude Include="ProfilePage.hpp" />
+    <ClInclude Include="StatisticsPage.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
