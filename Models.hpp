@@ -37,6 +37,7 @@ public:
     virtual bool canManageAllUsers() const { return role == UserRole::ADMIN; }
     virtual bool canViewStatistics() const { return role == UserRole::ADMIN; }
 
+	int getId() const { return id; }
     std::string getEmail() const { return email; }
     std::string getFirstName() const { return firstName; }
     std::string getLastName() const { return lastName; }
