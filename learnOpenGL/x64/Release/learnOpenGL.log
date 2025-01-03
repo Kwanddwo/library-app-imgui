@@ -1,12 +1,23 @@
-﻿  InterfaceManager.hpp
+﻿  BorrowFormPage.hpp
+  BorrowingsPage.hpp
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_glfw.cpp
+  imgui_impl_opengl3.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  InterfaceManager.hpp
   main.cpp
+  sha256.cpp
+  glad.c
      Création de la bibliothèque C:\Users\PC\Desktop\GI1\C++_POO\library\learnOpenGL\x64\Release\learnOpenGL.lib et de l'objet C:\Users\PC\Desktop\GI1\C++_POO\library\learnOpenGL\x64\Release\learnOpenGL.exp
+  Previous IPDB not found, fall back to full compilation.
 LINK : warning LNK4098: conflit entre la bibliothèque par défaut 'MSVCRTD' et les autres bibliothèques ; utilisez /NODEFAULTLIB:library
   Génération de code en cours
-  Previous IPDB not found, fall back to full compilation.
-C:\Users\PC\Desktop\GI1\C++_POO\library\learnOpenGL\Models.hpp(57): warning C4715: 'User::stringToUserRole' : les chemins de contrôle ne retournent pas tous une valeur
-C:\Users\PC\Desktop\GI1\C++_POO\library\learnOpenGL\Models.hpp(68): warning C4715: 'User::userRoleToString' : les chemins de contrôle ne retournent pas tous une valeur
-  All 2210 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+C:\Users\PC\Desktop\GI1\C++_POO\library\learnOpenGL\Models.hpp(58): warning C4715: 'User::stringToUserRole' : les chemins de contrôle ne retournent pas tous une valeur
+C:\Users\PC\Desktop\GI1\C++_POO\library\learnOpenGL\Models.hpp(69): warning C4715: 'User::userRoleToString' : les chemins de contrôle ne retournent pas tous une valeur
+  All 2345 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Fin de la génération du code
 mysqlcppconn-static.lib(mysql_driver.obj) : warning LNK4099: PDB '' n'a pu être trouvé avec 'mysqlcppconn-static.lib(mysql_driver.obj)' ou sur '' ; l'objet sera lié sans informations de débogage
 mysqlcppconn-static.lib(mysql_connection.obj) : warning LNK4099: PDB '' n'a pu être trouvé avec 'mysqlcppconn-static.lib(mysql_connection.obj)' ou sur '' ; l'objet sera lié sans informations de débogage

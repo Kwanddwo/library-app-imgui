@@ -40,6 +40,15 @@
     <Filter Include="Header Files\interface\pages">
       <UniqueIdentifier>{80d3eed2-e6d8-4eef-9864-54174733b5a3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\interface\pages\member">
+      <UniqueIdentifier>{ee7e6c78-b888-4307-aa2c-2903fdc65427}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\interface\pages\librarian">
+      <UniqueIdentifier>{51051931-d253-4cdb-b0d1-d0f905a0aa5c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\interface\pages\admin">
+      <UniqueIdentifier>{848af697-09b4-408b-bb16-992067472762}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -74,6 +83,12 @@
     </ClCompile>
     <ClCompile Include="InterfaceManager.hpp">
       <Filter>Header Files\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="BorrowFormPage.hpp">
+      <Filter>Header Files\interface\pages\member</Filter>
+    </ClCompile>
+    <ClCompile Include="BorrowingsPage.hpp">
+      <Filter>Header Files\interface\pages\librarian</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -128,8 +143,23 @@
     <ClInclude Include="RegisterPage.hpp">
       <Filter>Header Files\interface\pages</Filter>
     </ClInclude>
-    <ClInclude Include="WelcomePage.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="ProfilePage.hpp">
+      <Filter>Header Files\interface\pages</Filter>
+    </ClInclude>
+    <ClInclude Include="BorrowingsHistoryPage.hpp">
+      <Filter>Header Files\interface\pages\member</Filter>
+    </ClInclude>
+    <ClInclude Include="BooksPage.hpp">
+      <Filter>Header Files\interface\pages</Filter>
+    </ClInclude>
+    <ClInclude Include="LibrariansPage.hpp">
+      <Filter>Header Files\interface\pages\admin</Filter>
+    </ClInclude>
+    <ClInclude Include="StatisticsPage.hpp">
+      <Filter>Header Files\interface\pages\admin</Filter>
+    </ClInclude>
+    <ClInclude Include="MembersPage.hpp">
+      <Filter>Header Files\interface\pages\librarian</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
