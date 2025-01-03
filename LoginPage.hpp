@@ -5,6 +5,7 @@
 struct LoginPageState : public PageState {
     char userEmail[100] = "";
     char userPassword[64] = "";
+    bool isLoading = false;
 };
 
 class LoginPage : public Page {
@@ -20,23 +21,39 @@ public:
 
     void render(AppState& state, std::shared_ptr<PageState> pageState) override {
         auto loginState = std::static_pointer_cast<LoginPageState>(pageState);
+
         ImGui::InputText("Email", loginState->userEmail, 100);
         ImGui::InputText("Password", loginState->userPassword, 64, ImGuiInputTextFlags_Password);
+
         if (ImGui::Button("Login")) {
-            try {
-                if (!auth.login(loginState->userEmail, loginState->userPassword)) {
-                    state.errorMessage = "Incorrect credentials";
-                    state.showErrorModal = true;
-                }
-                else {
-                    onLogin();
-                }
-            }
-            catch (const std::exception& e) {
-                state.errorMessage = e.what();
+            if (strlen(loginState->userEmail) == 0 || strlen(loginState->userPassword) == 0) {
+                state.errorMessage = "Email and password cannot be empty";
                 state.showErrorModal = true;
             }
+            else {
+                loginState->isLoading = true;
+                try {
+                    if (!auth.login(loginState->userEmail, loginState->userPassword)) {
+                        state.errorMessage = "Incorrect credentials";
+                        state.showErrorModal = true;
+                    }
+                    else {
+                        onLogin();
+                    }
+                }
+                catch (const std::exception& e) {
+                    state.errorMessage = e.what();
+                    state.showErrorModal = true;
+                }
+                loginState->isLoading = false;
+            }
         }
+
+        if (loginState->isLoading) {
+            ImGui::SameLine();
+            ImGui::Text("Loading...");
+        }
+
         ImGui::SameLine();
         if (ImGui::Button("Register")) {
             onRegisterClick(pageState);
