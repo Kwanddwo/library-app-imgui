@@ -143,4 +143,3 @@ public:
         return res->next();
     }
 };
-
