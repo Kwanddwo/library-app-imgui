@@ -12,10 +12,10 @@
      Creating library C:\Users\Amine\Source\Repos\library-app-imgui\x64\Release\learnOpenGL.lib and object C:\Users\Amine\Source\Repos\library-app-imgui\x64\Release\learnOpenGL.exp
 LINK : warning LNK4098: defaultlib 'MSVCRTD' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  Previous IPDB was built with incompatible compiler, fall back to full compilation.
-C:\Users\Amine\source\repos\library-app-imgui\Models.hpp(56): warning C4715: 'User::stringToUserRole': not all control paths return a value
-C:\Users\Amine\source\repos\library-app-imgui\Models.hpp(67): warning C4715: 'User::userRoleToString': not all control paths return a value
-  All 1970 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Previous IPDB not found, fall back to full compilation.
+C:\Users\Amine\source\repos\library-app-imgui\Models.hpp(58): warning C4715: 'User::stringToUserRole': not all control paths return a value
+C:\Users\Amine\source\repos\library-app-imgui\Models.hpp(69): warning C4715: 'User::userRoleToString': not all control paths return a value
+  All 2214 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
 mysqlcppconn-static.lib(mysql_driver.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_driver.obj)' or at ''; linking object as if no debug info
 mysqlcppconn-static.lib(mysql_connection.obj) : warning LNK4099: PDB '' was not found with 'mysqlcppconn-static.lib(mysql_connection.obj)' or at ''; linking object as if no debug info

@@ -143,3 +143,9 @@ public:
         return res->next();
     }
 };
+class BookDAO :public BaseDAO {
+public:
+    BookDAO(DatabaseConnection& db) : BaseDAO(db) {}
+    void insertBook(){}
+
+};
