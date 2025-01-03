@@ -44,6 +44,7 @@ public:
     std::string getFirstName() { return firstName; };
     std::string getLastName() { return lastName; };
     UserRole getRole() const { return role; }
+
     static UserRole stringToUserRole(std::string role) {
         if (role == "member") {
             return UserRole::MEMBER;

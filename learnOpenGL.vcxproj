@@ -184,8 +184,12 @@
     <ClInclude Include="imgui\imstb_rectpack.h" />
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
+    <ClInclude Include="LoginPage.hpp" />
     <ClInclude Include="Models.hpp" />
+    <ClInclude Include="Page.hpp" />
+    <ClInclude Include="RegisterPage.hpp" />
     <ClInclude Include="sha256\sha256.h" />
+    <ClInclude Include="WelcomePage.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
