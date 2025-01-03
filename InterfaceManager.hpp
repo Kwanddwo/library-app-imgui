@@ -118,20 +118,14 @@ public:
         else {
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::SetNextWindowSize(ImVec2(DisplaySize.x, DisplaySize.y));
-            ImGui::Begin("Welcome Page", NULL, PARENT_FLAGS);
-            ImGui::Text("Hello!");
-            ImGui::Text("First name: ");
-            ImGui::SameLine();
-            ImGui::Text("%s", auth.getCurrUser().getFirstName().c_str());
-            ImGui::Text("Last name: ");
-            ImGui::SameLine();
-            ImGui::Text("%s", auth.getCurrUser().getLastName().c_str());
-            ImGui::Text("Email: ");
-            ImGui::SameLine();
-            ImGui::Text("%s", auth.getCurrUser().getEmail().c_str());
-            ImGui::Text("Role: ");
-            ImGui::SameLine();
-            ImGui::Text("%s", User::userRoleToString(auth.getCurrUser().getRole()).c_str());
+            ImGui::Begin("Falafel library", NULL, PARENT_FLAGS);
+            if (ImGui::BeginTabBar("menu")) {
+                if (ImGui::BeginTabItem("BOOKS")) {
+
+                    ImGui::EndTabItem();
+                }
+                ImGui::EndTabBar();
+            }
             ImGui::End();
         }
     }
