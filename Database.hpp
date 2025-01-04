@@ -488,9 +488,9 @@ public:
             res->getInt("nbrPages"),
             LanguageDAO(db).findLanguageById(res->getInt("languageId")),
             EditorDAO(db).findEditorById(res->getInt("editorId")),
-            std::vector<Author>(), // Authors will be fetched separately
-            std::vector<Category>(), // Categories will be fetched separately
-            std::vector<Category>() // Genres will be fetched separately
+            findAuthorsByBookId(id),
+            findCategoriesByBookId(id, "category"),
+            findCategoriesByBookId(id, "genre")
         );
 
         return book;
@@ -512,13 +512,52 @@ public:
                 res->getInt("nbrPages"),
                 LanguageDAO(db).findLanguageById(res->getInt("languageId")),
                 EditorDAO(db).findEditorById(res->getInt("editorId")),
-                std::vector<Author>(), // Authors will be fetched separately
-                std::vector<Category>(), // Categories will be fetched separately
-                std::vector<Category>() // Genres will be fetched separately
+                findAuthorsByBookId(res->getInt("id")),
+                findCategoriesByBookId(res->getInt("id"), "category"),
+                findCategoriesByBookId(res->getInt("id"), "genre")
             );
             vBook.push_back(book);
         }
         return vBook;
+    }
+
+private:
+    std::vector<Author> findAuthorsByBookId(int bookId) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("SELECT a.id, a.firstName, a.lastName, a.dateOfBirth FROM authors a JOIN authored_by ab ON a.id = ab.authorId WHERE ab.bookId = ?"));
+        pstmt->setInt(1, bookId);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        std::vector<Author> authors;
+        while (res->next()) {
+            Author author(
+                res->getInt("id"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                res->getString("dateOfBirth")
+            );
+            authors.push_back(author);
+        }
+        return authors;
+    }
+
+    std::vector<Category> findCategoriesByBookId(int bookId, const std::string& type) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("SELECT c.id, c.name, c.type FROM categories c JOIN book_categories bc ON c.id = bc.categoryId WHERE bc.bookId = ? AND c.type = ?"));
+        pstmt->setInt(1, bookId);
+        pstmt->setString(2, type);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        std::vector<Category> categories;
+        while (res->next()) {
+            Category category(
+                res->getInt("id"),
+                res->getString("name"),
+                res->getString("type")
+            );
+            categories.push_back(category);
+        }
+        return categories;
     }
 };
 
