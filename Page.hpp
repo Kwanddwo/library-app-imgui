@@ -4,6 +4,14 @@
 #include "imgui.h"
 #include "Database.hpp"
 
+static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY |
+ImGuiTableFlags_RowBg |
+ImGuiTableFlags_BordersOuter |
+ImGuiTableFlags_BordersV |
+ImGuiTableFlags_Resizable |
+ImGuiTableFlags_Reorderable |
+ImGuiTableFlags_Hideable;
+
 enum class PageType { 
     Login, 
     Register, 
