@@ -22,8 +22,10 @@ int main() {
             return 1;
         }
         UserDAO userdb(dbconn);
+        BookDAO bookdb(dbconn);
+		BorrowingDAO borrowingdb(dbconn);
         Auth auth = Auth(userdb);
-        InterfaceApp uiManager(auth, userdb);
+        InterfaceApp uiManager(auth, userdb, bookdb, borrowingdb);
 
         if (!glfwInit()) {
             std::cerr << "Failed to initialize GLFW" << std::endl;

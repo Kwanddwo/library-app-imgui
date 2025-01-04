@@ -5,14 +5,6 @@ struct LibrariansPageState : public PageState {
     
 };
 
-static ImGuiTableFlags flags = ImGuiTableFlags_ScrollY | 
-    ImGuiTableFlags_RowBg | 
-    ImGuiTableFlags_BordersOuter | 
-    ImGuiTableFlags_BordersV | 
-    ImGuiTableFlags_Resizable | 
-    ImGuiTableFlags_Reorderable | 
-    ImGuiTableFlags_Hideable;
-
 class LibrariansPage : public Page {
     vector<User> librarians;
 	UserDAO& userDB;
