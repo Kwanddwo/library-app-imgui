@@ -29,6 +29,7 @@
 
 class InterfaceApp {
     Auth& auth;
+    UserDAO& userDB;
     AppState state;
     PageType currentPageType;
     std::unique_ptr<Page> currentPage;
@@ -110,7 +111,7 @@ class InterfaceApp {
 	}
 
 public:
-    InterfaceApp(Auth& auth) : auth(auth) {
+    InterfaceApp(Auth& auth, UserDAO& userDB) : auth(auth), userDB(userDB) {
         this->setPage(PageType::Login, std::make_shared<LoginPageState>());
     }
 
@@ -156,7 +157,7 @@ public:
 
 
 		case PageType::Librarians:
-            currentPage = std::make_unique<LibrariansPage>();
+            currentPage = std::make_unique<LibrariansPage>(userDB);
 			break;
 		case PageType::Statistics:
 			currentPage = std::make_unique<StatisticsPage>();

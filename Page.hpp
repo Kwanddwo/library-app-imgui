@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 #include "imgui.h"
+#include "Database.hpp"
 
 enum class PageType { 
     Login, 
@@ -27,6 +28,6 @@ struct PageState {
 
 class Page {
 public:
+    char title[100] = "Library App";
     virtual void render(AppState& state, std::shared_ptr<PageState> pageState) = 0;
-    char title[100];
 };
