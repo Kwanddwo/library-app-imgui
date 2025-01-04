@@ -62,7 +62,6 @@ class InterfaceApp {
         if (auth.getCurrUser().canViewBooks()) {
             ImGui::SameLine();
             if (ImGui::Button("Books")) {
-                auth.logout();
                 this->setPage(PageType::Books, nullptr);
             }
         }
