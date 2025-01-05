@@ -649,4 +649,28 @@ public:
         }
         return vBorrowing;
     }
+
+    std::vector<Borrowing> getMemberBorrowings(const int clientId) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(
+            "SELECT * FROM borrowings WHERE clientId = ?"));
+        pstmt->setInt(1, clientId);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        std::vector<Borrowing> borrowings;
+        while (res->next()) {
+            Borrowing borrowing(
+                res->getInt("id"),
+                res->getString("dateBorrowed"),
+                res->getString("dateIntendedReturn"),
+                res->getString("dateActualReturn"),
+                res->getString("status"),
+                UserDAO(db).findUserById(res->getInt("clientId")),
+                UserDAO(db).findUserById(res->getInt("librarianId")),
+                BookDAO(db).findBookById(res->getInt("bookId"))
+            );
+            borrowings.push_back(borrowing);
+        }
+        return borrowings;
+    }
 };

@@ -79,12 +79,10 @@ public:
                 std::string genresCol = "";
 
                 for (auto& category : book.getCategories()) {
-                    if (category.getType() == "genre") {
-						genresCol += category.getName() + ", ";
-                    }
-                    else {
 						categoriesCol += category.getName() + ", ";
-                    }
+                }
+                for (auto& genre : book.getGenres()) {
+                    genresCol += genre.getName() + ", ";
                 }
                 ImGui::TableNextColumn();
                 ImGui::Text(genresCol.c_str());

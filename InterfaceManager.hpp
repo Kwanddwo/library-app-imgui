@@ -56,11 +56,11 @@ class InterfaceApp {
         }
     }
 
-	void renderNavBar() {
-		if (ImGui::Button("Logout")) {
-			auth.logout();
-			this->setPage(PageType::Login, std::make_shared<LoginPageState>());
-		}
+    void renderNavBar() {
+        if (ImGui::Button("Logout")) {
+            auth.logout();
+            this->setPage(PageType::Login, std::make_shared<LoginPageState>());
+        }
 
         if (auth.getCurrUser().canViewBooks()) {
             ImGui::SameLine();
@@ -69,28 +69,27 @@ class InterfaceApp {
             }
         }
 
-		if (auth.getCurrUser().canReserveBooks()) {
-			ImGui::SameLine();
-			if (ImGui::Button("Borrowings History")) {
-				this->setPage(PageType::BorrowingsHistory, nullptr);
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Borrow Form")) {
-				this->setPage(PageType::BorrowForm, nullptr);
-			}
-		}
+        if (auth.getCurrUser().canReserveBooks()) {
+            ImGui::SameLine();
+            if (ImGui::Button("Borrowings History")) {
+                this->setPage(PageType::BorrowingsHistory, nullptr);
+            }
+            ImGui::SameLine();
+            if (ImGui::Button("Borrow Form")) {
+                this->setPage(PageType::BorrowForm, nullptr);
+            }
+        }
 
-		if (auth.getCurrUser().canManageMembers()) {
+        if (auth.getCurrUser().canManageMembers()) {
             ImGui::SameLine();
             if (ImGui::Button("Borrowings")) {
                 this->setPage(PageType::Borrowings, nullptr);
             }
-			ImGui::SameLine();
-			if (ImGui::Button("Members")) {
-				this->setPage(PageType::Members, nullptr);
-			}
-			
-		}
+            ImGui::SameLine();
+            if (ImGui::Button("Members")) {
+                this->setPage(PageType::Members, nullptr);
+            }
+        }
 
         if (auth.getCurrUser().canManageAllUsers()) {
             ImGui::SameLine();
@@ -106,14 +105,14 @@ class InterfaceApp {
             }
         }
 
-		ImGui::SameLine();
-		if (ImGui::Button("Profile")) {
-			this->setPage(PageType::Profile, nullptr);
-		}
-	}
+        ImGui::SameLine();
+        if (ImGui::Button("Profile")) {
+            this->setPage(PageType::Profile, nullptr);
+        }
+    }
 
 public:
-    InterfaceApp(Auth& auth, UserDAO& userDB, BookDAO& bookDB, BorrowingDAO& borrowingDB) : 
+    InterfaceApp(Auth& auth, UserDAO& userDB, BookDAO& bookDB, BorrowingDAO& borrowingDB) :
         auth(auth), userDB(userDB), bookDB(bookDB), borrowingDB(borrowingDB) {
         this->setPage(PageType::Login, std::make_shared<LoginPageState>());
     }
@@ -141,44 +140,37 @@ public:
         case PageType::Books:
             currentPage = std::make_unique<BooksPage>(bookDB,auth, borrowingDB);
             break;
-
-
         case PageType::BorrowForm:
             currentPage = std::make_unique<BorrowFormPage>();
             break;
         case PageType::BorrowingsHistory:
-            currentPage = std::make_unique<BorrowingsHistoryPage>();
+            currentPage = std::make_unique<BorrowingsHistoryPage>(borrowingDB, auth);
             break;
-
-
-		case PageType::Borrowings:
-			currentPage = std::make_unique<BorrowingsPage>();
-			break;
-		case PageType::Members:
-			currentPage = std::make_unique<MembersPage>();
-			break;
-
-
-		case PageType::Librarians:
+        case PageType::Borrowings:
+            currentPage = std::make_unique<BorrowingsPage>(borrowingDB);
+            break;
+        case PageType::Members:
+            currentPage = std::make_unique<MembersPage>(userDB);
+            break;
+        case PageType::Librarians:
             currentPage = std::make_unique<LibrariansPage>(userDB);
-			break;
-		case PageType::Statistics:
-			currentPage = std::make_unique<StatisticsPage>();
-			break;
+            break;
+        case PageType::Statistics:
+            currentPage = std::make_unique<StatisticsPage>();
+            break;
         }
-        
     }
 
     void render(ImVec2 DisplaySize) {
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(DisplaySize.x, DisplaySize.y));
         ImGui::Begin(currentPage->title, NULL, PARENT_FLAGS);
-        
+
         if (currentPageType > PageType::Register) {
             this->renderNavBar();
         }
         currentPage->render(state, currentPageState);
-		
+
         ImGui::End();
         ShowErrorModal();
     }
