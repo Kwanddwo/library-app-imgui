@@ -98,10 +98,9 @@ public:
                         borrow.setStatus("reserved");
                         borrow.setId(rand() % 10000);
                         borrow.setBook(book);
-                        const string& a = NULL;
-                        borrow.setDateBorrowed(a);
-                        borrow.setDateIntendedReturn(a);
-                        borrow.setDateActualReturn(a);
+                        borrow.setDateBorrowed("1970-01-01");
+                        borrow.setDateIntendedReturn("1970-01-01");
+                        borrow.setDateActualReturn("1970-01-01");
                         borrowDB.insertBorrowing(borrow.getDateBorrowed(), borrow.getDateIntendedReturn(), borrow.getDateActualReturn(), borrow.getStatus(), borrow.getClient().getId(), 1, borrow.getBook().getId());
                     }
                 }
