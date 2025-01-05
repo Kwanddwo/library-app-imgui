@@ -258,7 +258,7 @@ public:
     void setBook(const Book& book) { this->book = book; }
 
     int getId() const { return id; }
-    std::string getDateBorrowed() const { return dateBorrowed; }
+    std::string getDateBorrowed() { return dateBorrowed; }
     std::string getDateIntendedReturn() const { return dateIntendedReturn; }
     std::string getDateActualReturn() const { return dateActualReturn; }
     std::string getStatus() const { return status; }

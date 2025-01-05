@@ -565,7 +565,7 @@ class BorrowingDAO : public BaseDAO {
 public:
     BorrowingDAO(DatabaseConnection& db) : BaseDAO(db) {}
 
-    void insertBorrowing(const std::string& dateBorrowed, const std::string& dateIntendedReturn, const std::string& dateActualReturn, const std::string& status, int clientId, int librarianId, int bookId) {
+    void insertBorrowing(const std::string dateBorrowed, const std::string& dateIntendedReturn, const std::string& dateActualReturn, const std::string& status, int clientId, int librarianId, int bookId) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("INSERT INTO borrowings (dateBorrowed, dateIntendedReturn, dateActualReturn, status, clientId, librarianId, bookId) VALUES (?, ?, ?, ?, ?, ?, ?)"));

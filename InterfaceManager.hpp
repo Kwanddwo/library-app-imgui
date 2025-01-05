@@ -139,7 +139,7 @@ public:
             currentPage = std::make_unique<ProfilePage>(auth);
             break;
         case PageType::Books:
-            currentPage = std::make_unique<BooksPage>(bookDB);
+            currentPage = std::make_unique<BooksPage>(bookDB,auth, borrowingDB);
             break;
 
 
