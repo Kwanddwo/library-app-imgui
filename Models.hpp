@@ -89,6 +89,7 @@ public:
     std::string getFirstName() const { return firstName; }
     std::string getLastName() const { return lastName; }
     std::string getDateOfBirth() const { return dateOfBirth; }
+    std::string getFullName() const { return firstName + " " + lastName; }
 
     void display() const {
         std::cout << "Author ID: " << id << "\nFirst Name: " << firstName

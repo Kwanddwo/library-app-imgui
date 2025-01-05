@@ -23,6 +23,10 @@ class Auth {
 public:
     Auth(UserDAO& userdb) : userdb(userdb), isLoggedIn(false) {}
 
+	UserDAO& getUserDAO() {
+		return userdb;
+	}
+
     bool getIsLoggedIn() const {
         return isLoggedIn;
     }
