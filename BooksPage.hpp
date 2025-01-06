@@ -90,7 +90,7 @@ public:
             filteredBooks = filterBooks(e, search_input);
             
         }
-            if (ImGui::BeginTable("Books List", 11, flags, outer_size))
+            if (ImGui::BeginTable("Books List", 12, flags, outer_size))
             {
                 ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
                 ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_None);
@@ -104,6 +104,7 @@ public:
                 ImGui::TableSetupColumn("Author(s)", ImGuiTableColumnFlags_None);
                 ImGui::TableSetupColumn("Genres", ImGuiTableColumnFlags_None);
                 ImGui::TableSetupColumn("Categories", ImGuiTableColumnFlags_None);
+                ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_None);
                 ImGui::TableHeadersRow();
 
                 for (auto& book : filteredBooks)

@@ -16,6 +16,7 @@
 #include "BorrowFormPage.hpp"
 
 // Admin & librarian pages
+#include "EditUserPage.hpp"
 #include "BorrowingsPage.hpp"
 #include "MembersPage.hpp"
 
@@ -117,6 +118,21 @@ public:
         this->setPage(PageType::Login, std::make_shared<LoginPageState>());
     }
 
+    void setPageEditUser(User user) {
+        currentPage = std::make_unique<EditUserPage>(
+            userDB,
+            [this](User u) {
+                if (u.getRole() == UserRole::MEMBER) {
+                    this->setPage(PageType::Members, nullptr);
+                }
+                else {
+                    this->setPage(PageType::Librarians, nullptr);
+                }
+            },
+            user
+        );
+    }
+
     void setPage(PageType pageType, std::shared_ptr<PageState> pageState) {
         currentPageType = pageType;
         currentPageState = pageState;
@@ -138,7 +154,7 @@ public:
             currentPage = std::make_unique<ProfilePage>(auth);
             break;
         case PageType::Books:
-            currentPage = std::make_unique<BooksPage>(bookDB,auth, borrowingDB);
+            currentPage = std::make_unique<BooksPage>(bookDB, auth, borrowingDB);
             break;
         case PageType::BorrowForm:
             currentPage = std::make_unique<BorrowFormPage>();
@@ -150,10 +166,10 @@ public:
             currentPage = std::make_unique<BorrowingsPage>(borrowingDB);
             break;
         case PageType::Members:
-            currentPage = std::make_unique<MembersPage>(userDB);
+            currentPage = std::make_unique<MembersPage>(userDB, [this](User u) {this->setPageEditUser(u);});
             break;
         case PageType::Librarians:
-            currentPage = std::make_unique<LibrariansPage>(userDB);
+            currentPage = std::make_unique<LibrariansPage>(userDB, [this](User u) {this->setPageEditUser(u);});
             break;
         case PageType::Statistics:
             currentPage = std::make_unique<StatisticsPage>();

@@ -161,5 +161,8 @@
     <ClInclude Include="MembersPage.hpp">
       <Filter>Header Files\interface\pages\librarian</Filter>
     </ClInclude>
+    <ClInclude Include="EditUserPage.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
