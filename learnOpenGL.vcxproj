@@ -179,6 +179,7 @@
     <ClInclude Include="BorrowingsHistoryPage.hpp" />
     <ClInclude Include="Database.hpp" />
     <ClInclude Include="DatabaseConnection.hpp" />
+    <ClInclude Include="EditUserPage.hpp" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />

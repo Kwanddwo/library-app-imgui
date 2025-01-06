@@ -22,7 +22,8 @@ enum class PageType {
     Members, 
     Librarians,
     Statistics,
-    BookEditeForm
+    BookEditeForm,
+    EditUser,
 };
 
 struct AppState {
