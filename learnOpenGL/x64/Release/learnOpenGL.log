@@ -1,5 +1,4 @@
-﻿  BorrowFormPage.hpp
-  BorrowingsPage.hpp
+﻿  BorrowingsPage.hpp
   imgui.cpp
   imgui_demo.cpp
   imgui_draw.cpp
@@ -11,14 +10,11 @@
   main.cpp
   sha256.cpp
   glad.c
-     Création de la bibliothèque C:\Users\PC\Desktop\GI1\C++_POO\library\learnOpenGL\x64\Release\learnOpenGL.lib et de l'objet C:\Users\PC\Desktop\GI1\C++_POO\library\learnOpenGL\x64\Release\learnOpenGL.exp
-  Previous IPDB not found, fall back to full compilation.
+     Création de la bibliothèque C:\Users\p\Source\Repos\library-app-imgui2\x64\Release\learnOpenGL.lib et de l'objet C:\Users\p\Source\Repos\library-app-imgui2\x64\Release\learnOpenGL.exp
 LINK : warning LNK4098: conflit entre la bibliothèque par défaut 'MSVCRTD' et les autres bibliothèques ; utilisez /NODEFAULTLIB:library
   Génération de code en cours
   Previous IPDB not found, fall back to full compilation.
-C:\Users\p\Source\Repos\library-app-imgui2\Models.hpp(56): warning C4715: 'User::stringToUserRole' : les chemins de contrôle ne retournent pas tous une valeur
-C:\Users\p\Source\Repos\library-app-imgui2\Models.hpp(67): warning C4715: 'User::userRoleToString' : les chemins de contrôle ne retournent pas tous une valeur
-  All 1970 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 3012 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Fin de la génération du code
 mysqlcppconn-static.lib(mysql_driver.obj) : warning LNK4099: PDB '' n'a pu être trouvé avec 'mysqlcppconn-static.lib(mysql_driver.obj)' ou sur '' ; l'objet sera lié sans informations de débogage
 mysqlcppconn-static.lib(mysql_connection.obj) : warning LNK4099: PDB '' n'a pu être trouvé avec 'mysqlcppconn-static.lib(mysql_connection.obj)' ou sur '' ; l'objet sera lié sans informations de débogage

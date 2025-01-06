@@ -19,15 +19,16 @@ class BooksPage : public Page {
 	BookDAO& bookDB;
     Borrowing borrow;
     BorrowingDAO borrowDB;
+    std::function<void(Book)> onEdit;
 
 	void setBooks() {
 		books = bookDB.findAllBooks();
 	}
 
 public:
-    BooksPage(BookDAO& bookDB , Auth auth,BorrowingDAO borrowDB): bookDB(bookDB), auth(auth), borrowDB(borrowDB) {
-		strncpy_s(title, "Books", sizeof(title));
-		setBooks();
+    BooksPage(BookDAO& bookDB, Auth auth, BorrowingDAO borrowDB, std::function<void(Book)> onEdit) : bookDB(bookDB), auth(auth), borrowDB(borrowDB), onEdit(onEdit) {
+        strncpy_s(title, "Books", sizeof(title));
+        setBooks();
     }
 
     void render(AppState& state, std::shared_ptr<PageState> pageState) override {
@@ -96,12 +97,25 @@ public:
                         bookDB.updateBook(book.getId(), book.getIsbn(), book.getTitle(), book.getPubYear(), book.getNumAvailableCopies(), book.getNbrPages(), book.getLanguage().getId(), book.getEditor().getId());
                         borrow.setClient(auth.getCurrUser());
                         borrow.setStatus("reserved");
-                        borrow.setId(rand() % 10000);
+                        
                         borrow.setBook(book);
-                        borrow.setDateBorrowed("1970-01-01");
-                        borrow.setDateIntendedReturn("1970-01-01");
-                        borrow.setDateActualReturn("1970-01-01");
-                        borrowDB.insertBorrowing(borrow.getDateBorrowed(), borrow.getDateIntendedReturn(), borrow.getDateActualReturn(), borrow.getStatus(), borrow.getClient().getId(), 1, borrow.getBook().getId());
+                        borrow.setDateBorrowed("null");
+                        borrow.setDateIntendedReturn("null");
+                        borrow.setDateActualReturn("null");
+                        borrowDB.insertBorrowing(borrow.getDateBorrowed(), borrow.getDateIntendedReturn(), borrow.getDateActualReturn(), borrow.getStatus(), borrow.getClient().getId(), -1, borrow.getBook().getId());
+                    }
+                }
+                if (auth.getCurrUser().canManageBooks()) {
+                    ImGui::TableNextColumn();
+                    std::string buttonLabel2 = "Delete##" + std::to_string(book.getId());
+                    std::string buttonLabel3 = "Edite##" + std::to_string(book.getId());
+                    if (ImGui::Button(buttonLabel2.c_str())){
+                        bookDB.deleteBook(book.getId());
+                        setBooks();
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button(buttonLabel3.c_str())) {
+                        onEdit(book);
                     }
                 }
                 

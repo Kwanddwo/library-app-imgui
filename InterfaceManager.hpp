@@ -13,11 +13,12 @@
 
 // Member pages
 #include "BorrowingsHistoryPage.hpp"
-#include "BorrowFormPage.hpp"
+
 
 // Admin & librarian pages
 #include "BorrowingsPage.hpp"
 #include "MembersPage.hpp"
+#include "BookEditeForm.hpp"
 
 // Admin pages
 #include "LibrariansPage.hpp"
@@ -73,10 +74,6 @@ class InterfaceApp {
             ImGui::SameLine();
             if (ImGui::Button("Borrowings History")) {
                 this->setPage(PageType::BorrowingsHistory, nullptr);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Borrow Form")) {
-                this->setPage(PageType::BorrowForm, nullptr);
             }
         }
 
@@ -138,10 +135,14 @@ public:
             currentPage = std::make_unique<ProfilePage>(auth);
             break;
         case PageType::Books:
-            currentPage = std::make_unique<BooksPage>(bookDB,auth, borrowingDB);
-            break;
-        case PageType::BorrowForm:
-            currentPage = std::make_unique<BorrowFormPage>();
+            currentPage = std::make_unique<BooksPage>(
+                bookDB,
+                auth, 
+                borrowingDB,
+                [this](Book book) {
+                    auto be = std::make_shared<BookEditePageState>(book);
+                    this->setPage(PageType::BookEditeForm, be);
+                });
             break;
         case PageType::BorrowingsHistory:
             currentPage = std::make_unique<BorrowingsHistoryPage>(borrowingDB, auth);
@@ -158,6 +159,9 @@ public:
         case PageType::Statistics:
             currentPage = std::make_unique<StatisticsPage>();
             break;
+        case PageType::BookEditeForm:
+            currentPage = std::make_unique<BookEditeFormPage>(bookDB,
+                [this]() { this->setPage(PageType::Books, nullptr); });
         }
     }
 
