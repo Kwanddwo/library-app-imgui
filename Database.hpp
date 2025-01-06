@@ -565,7 +565,7 @@ class BorrowingDAO : public BaseDAO {
 public:
     BorrowingDAO(DatabaseConnection& db) : BaseDAO(db) {}
 
-    void insertBorrowing(const std::string& dateBorrowed, const std::string& dateIntendedReturn, const std::string& dateActualReturn, const std::string& status, int clientId, int librarianId, int bookId) {
+    void insertBorrowing(const std::string dateBorrowed, const std::string& dateIntendedReturn, const std::string& dateActualReturn, const std::string& status, int clientId, int librarianId, int bookId) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("INSERT INTO borrowings (dateBorrowed, dateIntendedReturn, dateActualReturn, status, clientId, librarianId, bookId) VALUES (?, ?, ?, ?, ?, ?, ?)"));
@@ -648,5 +648,29 @@ public:
             vBorrowing.push_back(borrowing);
         }
         return vBorrowing;
+    }
+
+    std::vector<Borrowing> getMemberBorrowings(const int clientId) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(
+            "SELECT * FROM borrowings WHERE clientId = ?"));
+        pstmt->setInt(1, clientId);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        std::vector<Borrowing> borrowings;
+        while (res->next()) {
+            Borrowing borrowing(
+                res->getInt("id"),
+                res->getString("dateBorrowed"),
+                res->getString("dateIntendedReturn"),
+                res->getString("dateActualReturn"),
+                res->getString("status"),
+                UserDAO(db).findUserById(res->getInt("clientId")),
+                UserDAO(db).findUserById(res->getInt("librarianId")),
+                BookDAO(db).findBookById(res->getInt("bookId"))
+            );
+            borrowings.push_back(borrowing);
+        }
+        return borrowings;
     }
 };

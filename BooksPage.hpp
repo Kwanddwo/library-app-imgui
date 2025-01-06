@@ -1,5 +1,6 @@
 #pragma once
 #include "Page.hpp"
+#include "Authentification.hpp"
 
 static string stringToLower(string s) {
     string str = s;
@@ -12,16 +13,19 @@ static bool filterSearch(string entry, string search) {
 }
 
 class BooksPage : public Page {
+    Auth auth;
 	vector<Book> books;
     vector<Book> filteredBooks;
 	BookDAO& bookDB;
+    Borrowing borrow;
+    BorrowingDAO borrowDB;
 
 	void setBooks() {
 		books = bookDB.findAllBooks();
 	}
 
 public:
-    BooksPage(BookDAO& bookDB): bookDB(bookDB) {
+    BooksPage(BookDAO& bookDB , Auth auth,BorrowingDAO borrowDB): bookDB(bookDB), auth(auth), borrowDB(borrowDB) {
 		strncpy_s(title, "Books", sizeof(title));
 		setBooks();
         filteredBooks = books;
@@ -132,21 +136,35 @@ public:
                     std::string categoriesCol = "";
                     std::string genresCol = "";
 
-                    for (auto& category : book.getCategories()) {
-                        if (category.getType() == "genre") {
-                            genresCol += category.getName() + ", ";
-                        }
-                        else {
-                            categoriesCol += category.getName() + ", ";
-                        }
-                    }
-                    ImGui::TableNextColumn();
-                    ImGui::Text(genresCol.c_str());
-                    ImGui::TableNextColumn();
-                    ImGui::Text(categoriesCol.c_str());
+                for (auto& category : book.getCategories()) {
+						categoriesCol += category.getName() + ", ";
                 }
-                ImGui::EndTable();
+                for (auto& genre : book.getGenres()) {
+                    genresCol += genre.getName() + ", ";
+                }
+                ImGui::TableNextColumn();
+                ImGui::Text(genresCol.c_str());
+                ImGui::TableNextColumn();
+                ImGui::Text(categoriesCol.c_str());
+                if (auth.getCurrUser().canReserveBooks() && book.getNumAvailableCopies()>0) {
+                    ImGui::TableNextColumn();
+                    std::string buttonLabel = "reserve##" + std::to_string(book.getId());
+                    if (ImGui::Button(buttonLabel.c_str())) {
+                        book.setNumAvailableCopies(book.getNumAvailableCopies() - 1)  ;
+                        bookDB.updateBook(book.getId(), book.getIsbn(), book.getTitle(), book.getPubYear(), book.getNumAvailableCopies(), book.getNbrPages(), book.getLanguage().getId(), book.getEditor().getId());
+                        borrow.setClient(auth.getCurrUser());
+                        borrow.setStatus("reserved");
+                        borrow.setId(rand() % 10000);
+                        borrow.setBook(book);
+                        borrow.setDateBorrowed("1970-01-01");
+                        borrow.setDateIntendedReturn("1970-01-01");
+                        borrow.setDateActualReturn("1970-01-01");
+                        borrowDB.insertBorrowing(borrow.getDateBorrowed(), borrow.getDateIntendedReturn(), borrow.getDateActualReturn(), borrow.getStatus(), borrow.getClient().getId(), 1, borrow.getBook().getId());
+                    }
+                }
+                
             }
-        
+            ImGui::EndTable();
+        }
     }
 };
