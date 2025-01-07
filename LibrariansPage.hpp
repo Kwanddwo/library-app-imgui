@@ -12,6 +12,7 @@ class LibrariansPage : public Page {
     std::function<void(User)> onEdit;
 
     void setLibrarians() {
+		librarians.clear();
         vector<User> users = userDB.findAllUsers();
         for (auto& user : users) {
             if (user.getRole() == UserRole::LIBRARIAN) {

@@ -26,7 +26,8 @@ class BooksPage : public Page {
 	}
 
 public:
-    BooksPage(BookDAO& bookDB , Auth auth,BorrowingDAO borrowDB): bookDB(bookDB), auth(auth), borrowDB(borrowDB) {
+    BooksPage(BookDAO& bookDB , Auth auth, BorrowingDAO borrowDB, std::function<void(Book)> onEdit): 
+        bookDB(bookDB), auth(auth), borrowDB(borrowDB), onEdit(onEdit) {
 		strncpy_s(title, "Books", sizeof(title));
 		setBooks();
         filteredBooks = books;
@@ -86,8 +87,7 @@ public:
         static char search_input[128] = "";
         ImGui::InputTextWithHint("", "enter text here", search_input, IM_ARRAYSIZE(search_input));ImGui::SameLine();
 
-        if (ImGui::Button("search")) {
-            ImGui::Text("button clicked");
+        if (ImGui::Button("Search")) {
             filteredBooks = filterBooks(e, search_input);
             
         }
@@ -167,7 +167,7 @@ public:
                 if (auth.getCurrUser().canManageBooks()) {
                     ImGui::TableNextColumn();
                     std::string buttonLabel2 = "Delete##" + std::to_string(book.getId());
-                    std::string buttonLabel3 = "Edite##" + std::to_string(book.getId());
+                    std::string buttonLabel3 = "Edit##" + std::to_string(book.getId());
                     if (ImGui::Button(buttonLabel2.c_str())){
                         bookDB.deleteBook(book.getId());
                         setBooks();

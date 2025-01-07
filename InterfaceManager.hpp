@@ -131,6 +131,14 @@ public:
         );
     }
 
+    void setPageEditBook(Book book) {
+        currentPage = std::make_unique<BookEditeFormPage>(
+            bookDB,
+            [this]() { this->setPage(PageType::Books, nullptr); },
+            book
+        );
+    }
+
     void setPage(PageType pageType, std::shared_ptr<PageState> pageState) {
         currentPageType = pageType;
         currentPageState = pageState;
@@ -156,10 +164,7 @@ public:
                 bookDB,
                 auth, 
                 borrowingDB,
-                [this](Book book) {
-                    auto be = std::make_shared<BookEditePageState>(book);
-                    this->setPage(PageType::BookEditeForm, be);
-                });
+                [this](Book book) { this->setPageEditBook(book); });
             break;
         case PageType::BorrowingsHistory:
             currentPage = std::make_unique<BorrowingsHistoryPage>(borrowingDB, auth);
@@ -182,9 +187,6 @@ public:
         case PageType::Statistics:
             currentPage = std::make_unique<StatisticsPage>();
             break;
-        case PageType::BookEditeForm:
-            currentPage = std::make_unique<BookEditeFormPage>(bookDB,
-                [this]() { this->setPage(PageType::Books, nullptr); });
         }
     }
 

@@ -11,6 +11,7 @@ class MembersPage : public Page {
     std::function<void(User)> onEdit;
 
     void setMembers() {
+		members.clear();
         vector<User> users = userDB.findAllUsers();
         for (auto& user : users) {
             if (user.getRole() == UserRole::MEMBER) {
