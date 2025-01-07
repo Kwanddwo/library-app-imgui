@@ -12,6 +12,19 @@ class BorrowingsPage : public Page {
     void setBorrowings() {
         borrowings = borrowingDB.findAllBorrowings();
     }
+
+    void verifyReservation(Borrowing b) {
+        borrowingDB.updateBorrowingStatus(b.getId(), "not returned");
+        setBorrowings();
+    }
+    void cancelBorrowing(Borrowing b) {
+        borrowingDB.updateBorrowingStatus(b.getId(), "cancelled");
+        setBorrowings();
+    }
+    void verifyReturn(Borrowing b) {
+        borrowingDB.updateBorrowingStatus(b.getId(), "returned");
+        setBorrowings();
+    }
 public:
     BorrowingsPage(BorrowingDAO& borrowingDB) : borrowingDB(borrowingDB) {
         strncpy_s(title, "Borrowings", sizeof(title));
@@ -25,7 +38,7 @@ public:
         const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
         const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
         ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 8);
-        if (ImGui::BeginTable("Borrowings List", 6, flags, outer_size))
+        if (ImGui::BeginTable("Borrowings List", 7, flags, outer_size))
         {
             ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
             ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_None);
@@ -34,6 +47,7 @@ public:
             ImGui::TableSetupColumn("Actual Return Date", ImGuiTableColumnFlags_None);
             ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_None);
             ImGui::TableSetupColumn("Client", ImGuiTableColumnFlags_None);
+            ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_None);
             ImGui::TableHeadersRow();
 
             for (auto& borrowing : borrowings)
@@ -51,6 +65,18 @@ public:
                 ImGui::Text(borrowing.getStatus().c_str());
                 ImGui::TableNextColumn();
                 ImGui::Text(borrowing.getClient().getFullName().c_str());
+                ImGui::TableNextColumn();
+                if (borrowing.getStatus() == "reserved") {
+                    if (ImGui::Button(("verify##" + std::to_string(borrowing.getId())).c_str()))
+                        verifyReservation(borrowing);
+                    ImGui::SameLine();
+                    if (ImGui::Button(("cancel##" + std::to_string(borrowing.getId())).c_str()))
+                        cancelBorrowing(borrowing);
+                }
+                if (borrowing.getStatus() == "not returned") {
+                    if (ImGui::Button(("verify##" + std::to_string(borrowing.getId())).c_str()))
+                        verifyReturn(borrowing);
+                }
             }
             ImGui::EndTable();
         }
