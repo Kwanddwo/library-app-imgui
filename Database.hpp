@@ -67,7 +67,8 @@ public:
     }
 
     void deleteUser(int id) {
-        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");    
+
         auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("DELETE FROM users WHERE id = ?"));
         pstmt->setInt(1, id);
@@ -144,6 +145,222 @@ public:
         std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
         return res->next();
     }
+    User most_activeUser(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(*) AS user_count "
+                            "FROM users u "
+                            "JOIN borrowings br ON u.id = br.clientId ";
+
+        if (range == "past month") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        } else if (range == "past year") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        } else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY user_count DESC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+           std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        //cout testing
+           
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+
+        }
+
+        throw std::runtime_error("No active users found for the given range: " + range);
+    }
+    User least_activeUser(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(*) AS user_count "
+            "FROM users u "
+            "JOIN borrowings br ON u.id = br.clientId ";
+
+        if (range == "past month") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "past year") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY user_count ASC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+        }
+
+        throw std::runtime_error("No inactive users found for the given range: " + range);
+    }
+
+    User most_activeLibrarian(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(*) AS user_count "
+            "FROM users u "
+            "JOIN borrowings br ON u.id = br.librarianId ";
+
+        if (range == "past month") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "past year") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY user_count DESC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+        }
+
+        throw std::runtime_error("No active librarians found for the given range: " + range);
+    }
+
+    User least_activeLibrarian(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(*) AS user_count "
+            "FROM users u "
+            "JOIN borrowings br ON u.id = br.librarianId ";
+
+        if (range == "past month") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "past year") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY user_count ASC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+        }
+
+        throw std::runtime_error("No inactive librarians found for the given range: " + range);
+    }
+
+    User most_unfaithfulUser(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(br.id) AS unfaithful_count "
+            "FROM users u "
+            "JOIN borrowings br ON u.id = br.clientId "
+            "WHERE (br.status = 'not returned' AND NOW() > br.dateIntendedReturn) "
+            "OR br.dateActualReturn > br.dateIntendedReturn ";
+
+        if (range == "past month") {
+            query += "AND br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "past year") {
+            query += "AND br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY unfaithful_count DESC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+        }
+
+        throw std::runtime_error("No unfaithful users found for the given range: " + range);
+    }
+
+    User most_trustedUser(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(br.id) AS borrow_count "
+            "FROM users u "
+            "JOIN borrowings br ON u.id = br.clientId "
+            "WHERE (br.status = 'returned' AND br.dateActualReturn <= br.dateIntendedReturn) "
+            "OR (br.status = 'not returned' AND NOW() < br.dateIntendedReturn) ";
+
+        if (range == "past month") {
+            query += "AND br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "past year") {
+            query += "AND br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY borrow_count DESC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+        }
+
+        throw std::runtime_error("No trusted users found for the given range: " + range);
+    }
+
+
+ 
 };
 
 class AuthorDAO : public BaseDAO {
@@ -268,7 +485,6 @@ public:
 
         return editor;
     }
-
     std::vector<Editor> findAllEditors() {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
@@ -519,6 +735,96 @@ public:
             vBook.push_back(book);
         }
         return vBook;
+    }
+    int nbBooks(const std::string& lang = "", const std::string& cat = "", const std::string& gen = "") {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT COUNT(*) FROM books b";
+
+        if (!cat.empty() || !gen.empty()) {
+            query += " JOIN book_categories bc ON b.id = bc.bookId";
+            query += " JOIN categories c ON c.id = bc.categoryId";
+        }
+        if (!lang.empty()) {
+            query += " JOIN languages l ON l.id = b.languageId";
+        }
+
+        std::string conditions = "";
+        if (!lang.empty()) {
+            conditions += "l.name = ?";
+        }
+        if (!cat.empty()) {
+            if (!conditions.empty()) conditions += " AND ";
+            conditions += "c.type = 'category' AND c.name = ?";
+        }
+        if (!gen.empty()) {
+            if (!conditions.empty()) conditions += " AND ";
+            conditions += "c.type = 'genre' AND c.name = ?";
+        }
+
+        if (!conditions.empty()) {
+            query += " WHERE " + conditions;
+        }
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        int paramIndex = 1;
+
+        if (!lang.empty()) {
+            pstmt->setString(paramIndex++, lang);
+        }
+        if (!cat.empty()) {
+            pstmt->setString(paramIndex++, cat);
+        }
+        if (!gen.empty()) {
+            pstmt->setString(paramIndex++, gen);
+        }
+
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        res->next();
+        return res->getInt(1);
+    }
+
+    Book most_borrowed_book_in_xperiod(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query =
+            "SELECT b.*, COUNT(br.id) AS borrow_count "
+            "FROM books b "
+            "JOIN borrowings br ON b.id = br.bookId ";
+
+        if (range == "Last Month") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "Last Year") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "Of All Time") {
+            throw std::invalid_argument("Invalid range provided: " + range);
+        }
+
+        query += "GROUP BY b.id ORDER BY borrow_count DESC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return Book(
+                res->getInt("id"),
+                res->getString("isbn"),
+                res->getString("title"),
+                res->getInt("pubYear"),
+                res->getInt("numAvailableCopies"),
+                res->getInt("nbrPages"),
+                LanguageDAO(db).findLanguageById(res->getInt("languageId")),
+                EditorDAO(db).findEditorById(res->getInt("editorId")),
+                findAuthorsByBookId(res->getInt("id")),
+                findCategoriesByBookId(res->getInt("id"), "category"),
+                findCategoriesByBookId(res->getInt("id"), "genre")
+            );
+        }
+
+        throw std::runtime_error("No books found for the specified range");
+
     }
 
 private:

@@ -138,7 +138,7 @@ public:
             currentPage = std::make_unique<ProfilePage>(auth);
             break;
         case PageType::Books:
-            currentPage = std::make_unique<BooksPage>(bookDB,auth, borrowingDB);
+            currentPage = std::make_unique<BooksPage>(bookDB, auth, borrowingDB);
             break;
         case PageType::BorrowForm:
             currentPage = std::make_unique<BorrowFormPage>();
@@ -156,8 +156,10 @@ public:
             currentPage = std::make_unique<LibrariansPage>(userDB);
             break;
         case PageType::Statistics:
+            currentPageState = std::make_shared<StatisticsPageState>();
             currentPage = std::make_unique<StatisticsPage>();
             break;
+
         }
     }
 
