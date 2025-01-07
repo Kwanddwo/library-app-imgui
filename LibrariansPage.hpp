@@ -8,6 +8,7 @@ struct LibrariansPageState : public PageState {
 class LibrariansPage : public Page {
     vector<User> librarians;
 	UserDAO& userDB;
+    std::function<void()> onCreate;
 
     void setLibrarians() {
         vector<User> users = userDB.findAllUsers();
@@ -18,7 +19,7 @@ class LibrariansPage : public Page {
         }
     }
 public:
-    LibrariansPage(UserDAO& userDB): userDB(userDB) {
+    LibrariansPage(UserDAO& userDB, std::function<void()> onCreate): userDB(userDB), onCreate(onCreate) {
         strncpy_s(title, "Librarians", sizeof(title));
         setLibrarians();
     }
@@ -30,8 +31,8 @@ public:
         const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
         const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
         ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 8);
-        if (ImGui::BeginTable("Librarians List", 4, flags, outer_size))
-        {
+        if (ImGui::BeginTable("Librarians List", 4, flags, outer_size)) {
+
             ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
             ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_None);
             ImGui::TableSetupColumn("Email", ImGuiTableColumnFlags_None);
@@ -39,8 +40,8 @@ public:
             ImGui::TableSetupColumn("Last Name", ImGuiTableColumnFlags_None);
             ImGui::TableHeadersRow();
 
-            for (auto& librarian : librarians)
-            {
+            for (auto& librarian : librarians) {
+
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
                 ImGui::Text("%d", librarian.getId());
@@ -53,5 +54,9 @@ public:
             }
             ImGui::EndTable();
         }
+
+		if (ImGui::Button("Add Librarian")) {
+            onCreate();
+		}
     }
 };

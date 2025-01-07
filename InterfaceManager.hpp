@@ -22,6 +22,7 @@
 // Admin pages
 #include "LibrariansPage.hpp"
 #include "StatisticsPage.hpp"
+#include "RegisterLibrarianPage.hpp"
 
 #ifndef PARENT_FLAGS
 #define PARENT_FLAGS ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse
@@ -153,7 +154,10 @@ public:
             currentPage = std::make_unique<MembersPage>(userDB);
             break;
         case PageType::Librarians:
-            currentPage = std::make_unique<LibrariansPage>(userDB);
+            currentPage = std::make_unique<LibrariansPage>(userDB, [this]() {this->setPage(PageType::RegisterLibrarianPage, std::make_shared<RegisterPageState>());});
+            break;
+        case PageType::RegisterLibrarianPage:
+            currentPage = std::make_unique<RegisterLibrarianPage>(auth, [this]() {this->setPage(PageType::Librarians, nullptr);});
             break;
         case PageType::Statistics:
             currentPage = std::make_unique<StatisticsPage>();

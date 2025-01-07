@@ -49,11 +49,11 @@ public:
         return hash == sha256(password);
     }
 
-    bool registerUser(const string& email, const string& password, const string& first, const string& last) {
+    bool registerUser(const string& email, const string& password, const string& first, const string& last, const string& role="member") {
         if (userdb.doesEmailExist(email))
             return false;
         string hash = createHash(password);
-        userdb.insertUser(email, first, last, hash, "member");
+        userdb.insertUser(email, first, last, hash, role);
         return true;
     }
 

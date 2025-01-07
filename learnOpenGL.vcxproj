@@ -193,6 +193,7 @@
     <ClInclude Include="MembersPage.hpp" />
     <ClInclude Include="Models.hpp" />
     <ClInclude Include="Page.hpp" />
+    <ClInclude Include="RegisterLibrarianPage.hpp" />
     <ClInclude Include="RegisterPage.hpp" />
     <ClInclude Include="sha256\sha256.h" />
     <ClInclude Include="ProfilePage.hpp" />

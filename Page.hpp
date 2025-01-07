@@ -22,6 +22,7 @@ enum class PageType {
     Borrowings, 
     Members, 
     Librarians,
+    RegisterLibrarianPage,
     Statistics
 };
 
