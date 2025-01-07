@@ -2,6 +2,11 @@
 #include "Page.hpp"
 #include "Models.hpp"
 
+struct BookEditePageState : public PageState {
+    Book book;
+    BookEditePageState(Book book) :book(book) {};
+};
+
 class BookEditeFormPage : public Page {
     BookDAO& bookDB;
     int bookId = -1; 

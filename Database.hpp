@@ -607,6 +607,16 @@ public:
         pstmt->execute();
     }
 
+    void updateBorrowingStatus(int id, const std::string status) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(
+            "UPDATE borrowings SET status = ? WHERE id = ?"));
+        pstmt->setString(1, status);
+        pstmt->setInt(2, id);
+        pstmt->execute();
+    }
+
     void deleteBorrowing(int id) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();

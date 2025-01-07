@@ -26,7 +26,7 @@ class BooksPage : public Page {
 	}
 
 public:
-    BooksPage(BookDAO& bookDB , Auth auth,BorrowingDAO borrowDB): bookDB(bookDB), auth(auth), borrowDB(borrowDB) {
+    BooksPage(BookDAO& bookDB , Auth auth,BorrowingDAO borrowDB, std::function<void(Book)> onEdit): bookDB(bookDB), auth(auth), borrowDB(borrowDB), onEdit(onEdit) {
 		strncpy_s(title, "Books", sizeof(title));
 		setBooks();
         filteredBooks = books;
