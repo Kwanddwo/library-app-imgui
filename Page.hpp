@@ -17,11 +17,12 @@ enum class PageType {
     Register, 
     Profile, 
     BorrowingsHistory,
-    BorrowForm,
     Books,
     Borrowings, 
     Members, 
     Librarians,
+    BookEditeForm,
+    EditUser,
     RegisterLibrarianPage,
     Statistics
 };

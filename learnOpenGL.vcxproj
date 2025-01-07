@@ -159,7 +159,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="BorrowFormPage.hpp" />
     <ClCompile Include="BorrowingsPage.hpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -175,10 +174,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Authentification.hpp" />
+    <ClInclude Include="BookEditeForm.hpp" />
     <ClInclude Include="BooksPage.hpp" />
     <ClInclude Include="BorrowingsHistoryPage.hpp" />
     <ClInclude Include="Database.hpp" />
     <ClInclude Include="DatabaseConnection.hpp" />
+    <ClInclude Include="EditUserPage.hpp" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />

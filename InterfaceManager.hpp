@@ -13,11 +13,13 @@
 
 // Member pages
 #include "BorrowingsHistoryPage.hpp"
-#include "BorrowFormPage.hpp"
+
 
 // Admin & librarian pages
+#include "EditUserPage.hpp"
 #include "BorrowingsPage.hpp"
 #include "MembersPage.hpp"
+#include "BookEditeForm.hpp"
 
 // Admin pages
 #include "LibrariansPage.hpp"
@@ -75,10 +77,6 @@ class InterfaceApp {
             if (ImGui::Button("Borrowings History")) {
                 this->setPage(PageType::BorrowingsHistory, nullptr);
             }
-            ImGui::SameLine();
-            if (ImGui::Button("Borrow Form")) {
-                this->setPage(PageType::BorrowForm, nullptr);
-            }
         }
 
         if (auth.getCurrUser().canManageMembers()) {
@@ -118,6 +116,21 @@ public:
         this->setPage(PageType::Login, std::make_shared<LoginPageState>());
     }
 
+    void setPageEditUser(User user) {
+        currentPage = std::make_unique<EditUserPage>(
+            userDB,
+            [this](User u) {
+                if (u.getRole() == UserRole::MEMBER) {
+                    this->setPage(PageType::Members, nullptr);
+                }
+                else {
+                    this->setPage(PageType::Librarians, nullptr);
+                }
+            },
+            user
+        );
+    }
+
     void setPage(PageType pageType, std::shared_ptr<PageState> pageState) {
         currentPageType = pageType;
         currentPageState = pageState;
@@ -139,10 +152,14 @@ public:
             currentPage = std::make_unique<ProfilePage>(auth);
             break;
         case PageType::Books:
-            currentPage = std::make_unique<BooksPage>(bookDB);
-            break;
-        case PageType::BorrowForm:
-            currentPage = std::make_unique<BorrowFormPage>();
+            currentPage = std::make_unique<BooksPage>(
+                bookDB,
+                auth, 
+                borrowingDB,
+                [this](Book book) {
+                    auto be = std::make_shared<BookEditePageState>(book);
+                    this->setPage(PageType::BookEditeForm, be);
+                });
             break;
         case PageType::BorrowingsHistory:
             currentPage = std::make_unique<BorrowingsHistoryPage>(borrowingDB, auth);
@@ -151,10 +168,13 @@ public:
             currentPage = std::make_unique<BorrowingsPage>(borrowingDB);
             break;
         case PageType::Members:
-            currentPage = std::make_unique<MembersPage>(userDB);
+            currentPage = std::make_unique<MembersPage>(userDB, [this](User u) {this->setPageEditUser(u);});
             break;
         case PageType::Librarians:
-            currentPage = std::make_unique<LibrariansPage>(userDB, [this]() {this->setPage(PageType::RegisterLibrarianPage, std::make_shared<RegisterPageState>());});
+            currentPage = std::make_unique<LibrariansPage>(userDB, 
+                [this](User u) {this->setPageEditUser(u);}, 
+                [this]() {this->setPage(PageType::RegisterLibrarianPage, std::make_shared<RegisterPageState>());}
+            );
             break;
         case PageType::RegisterLibrarianPage:
             currentPage = std::make_unique<RegisterLibrarianPage>(auth, [this]() {this->setPage(PageType::Librarians, nullptr);});
@@ -162,6 +182,9 @@ public:
         case PageType::Statistics:
             currentPage = std::make_unique<StatisticsPage>();
             break;
+        case PageType::BookEditeForm:
+            currentPage = std::make_unique<BookEditeFormPage>(bookDB,
+                [this]() { this->setPage(PageType::Books, nullptr); });
         }
     }
 

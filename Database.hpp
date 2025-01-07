@@ -565,16 +565,28 @@ class BorrowingDAO : public BaseDAO {
 public:
     BorrowingDAO(DatabaseConnection& db) : BaseDAO(db) {}
 
-    void insertBorrowing(const std::string& dateBorrowed, const std::string& dateIntendedReturn, const std::string& dateActualReturn, const std::string& status, int clientId, int librarianId, int bookId) {
+    void insertBorrowing(const std::string dateBorrowed, const std::string& dateIntendedReturn, const std::string& dateActualReturn, const std::string& status, int clientId, int librarianId, int bookId) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("INSERT INTO borrowings (dateBorrowed, dateIntendedReturn, dateActualReturn, status, clientId, librarianId, bookId) VALUES (?, ?, ?, ?, ?, ?, ?)"));
-        pstmt->setString(1, dateBorrowed);
-        pstmt->setString(2, dateIntendedReturn);
-        pstmt->setString(3, dateActualReturn);
+        if (dateBorrowed == "null")
+            pstmt->setNull(1, sql::DataType::DATE);
+        else
+            pstmt->setString(1, dateBorrowed);
+        if (dateIntendedReturn == "null")
+            pstmt->setNull(2, sql::DataType::DATE);
+        else
+            pstmt->setString(2, dateIntendedReturn);
+        if (dateActualReturn == "null")
+            pstmt->setNull(3, sql::DataType::DATE);
+        else
+            pstmt->setString(3, dateActualReturn);
         pstmt->setString(4, status);
         pstmt->setInt(5, clientId);
-        pstmt->setInt(6, librarianId);
+        if (librarianId == -1)
+            pstmt->setNull(6, sql::DataType::INTEGER);
+        else
+            pstmt->setInt(6, librarianId);
         pstmt->setInt(7, bookId);
         pstmt->execute();
     }
@@ -659,15 +671,20 @@ public:
         std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
         std::vector<Borrowing> borrowings;
         while (res->next()) {
+            int librarianId = res->isNull("librarianId") ? -1 : res->getInt("librarianId");
+
+            User client = UserDAO(db).findUserById(res->getInt("clientId"));
+            User librarian = (librarianId != -1) ? UserDAO(db).findUserById(librarianId) : User(); 
+            Book book = BookDAO(db).findBookById(res->getInt("bookId"));
             Borrowing borrowing(
                 res->getInt("id"),
                 res->getString("dateBorrowed"),
                 res->getString("dateIntendedReturn"),
                 res->getString("dateActualReturn"),
                 res->getString("status"),
-                UserDAO(db).findUserById(res->getInt("clientId")),
-                UserDAO(db).findUserById(res->getInt("librarianId")),
-                BookDAO(db).findBookById(res->getInt("bookId"))
+                client,
+                librarian,
+                book
             );
             borrowings.push_back(borrowing);
         }
