@@ -198,8 +198,10 @@ public:
             currentPage = std::make_unique<RegisterLibrarianPage>(auth, [this]() {this->setPage(PageType::Librarians, nullptr);});
             break;
         case PageType::Statistics:
+            currentPageState = std::make_shared<StatisticsPageState>();
             currentPage = std::make_unique<StatisticsPage>();
             break;
+
         }
     }
 
