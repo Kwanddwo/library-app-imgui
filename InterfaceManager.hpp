@@ -13,15 +13,18 @@
 
 // Member pages
 #include "BorrowingsHistoryPage.hpp"
-#include "BorrowFormPage.hpp"
+
 
 // Admin & librarian pages
+#include "EditUserPage.hpp"
 #include "BorrowingsPage.hpp"
 #include "MembersPage.hpp"
+#include "BookEditeForm.hpp"
 
 // Admin pages
 #include "LibrariansPage.hpp"
 #include "StatisticsPage.hpp"
+#include "RegisterLibrarianPage.hpp"
 
 #ifndef PARENT_FLAGS
 #define PARENT_FLAGS ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse
@@ -32,6 +35,10 @@ class InterfaceApp {
     UserDAO& userDB;
     BookDAO& bookDB;
     BorrowingDAO& borrowingDB;
+	CategoryDAO categoryDB;
+	LanguageDAO languageDB;
+	EditorDAO editorDB;
+	AuthorDAO authorDB;
     AppState state;
     PageType currentPageType;
     std::unique_ptr<Page> currentPage;
@@ -74,10 +81,6 @@ class InterfaceApp {
             if (ImGui::Button("Borrowings History")) {
                 this->setPage(PageType::BorrowingsHistory, nullptr);
             }
-            ImGui::SameLine();
-            if (ImGui::Button("Borrow Form")) {
-                this->setPage(PageType::BorrowForm, nullptr);
-            }
         }
 
         if (auth.getCurrUser().canManageMembers()) {
@@ -112,9 +115,36 @@ class InterfaceApp {
     }
 
 public:
-    InterfaceApp(Auth& auth, UserDAO& userDB, BookDAO& bookDB, BorrowingDAO& borrowingDB) :
-        auth(auth), userDB(userDB), bookDB(bookDB), borrowingDB(borrowingDB) {
+    InterfaceApp(Auth& auth, UserDAO& userDB, BookDAO& bookDB, BorrowingDAO& borrowingDB, CategoryDAO& categoryDB, LanguageDAO& languageDB, EditorDAO& editorDB, AuthorDAO& authorDB) :
+        auth(auth), userDB(userDB), bookDB(bookDB), borrowingDB(borrowingDB), categoryDB(categoryDB), languageDB(languageDB), editorDB(editorDB), authorDB(authorDB) {
         this->setPage(PageType::Login, std::make_shared<LoginPageState>());
+    }
+
+    void setPageEditUser(User user) {
+        currentPage = std::make_unique<EditUserPage>(
+            userDB,
+            [this](User u) {
+                if (u.getRole() == UserRole::MEMBER) {
+                    this->setPage(PageType::Members, nullptr);
+                }
+                else {
+                    this->setPage(PageType::Librarians, nullptr);
+                }
+            },
+            user
+        );
+    }
+
+    void setPageEditBook(Book book) {
+        currentPage = std::make_unique<BookEditeFormPage>(
+            bookDB,
+            [this]() { this->setPage(PageType::Books, nullptr); },
+            book,
+			categoryDB,
+			languageDB,
+			editorDB,
+			authorDB
+        );
     }
 
     void setPage(PageType pageType, std::shared_ptr<PageState> pageState) {
@@ -138,22 +168,34 @@ public:
             currentPage = std::make_unique<ProfilePage>(auth);
             break;
         case PageType::Books:
-            currentPage = std::make_unique<BooksPage>(bookDB, auth, borrowingDB);
-            break;
-        case PageType::BorrowForm:
-            currentPage = std::make_unique<BorrowFormPage>();
+            currentPage = std::make_unique<BooksPage>(
+                bookDB,
+                auth, 
+                borrowingDB,
+                categoryDB,
+                languageDB,
+				editorDB,
+                authorDB,
+                [this](Book book) { this->setPageEditBook(book); }
+            );
             break;
         case PageType::BorrowingsHistory:
-            currentPage = std::make_unique<BorrowingsHistoryPage>(borrowingDB, auth);
+            currentPage = std::make_unique<BorrowingsHistoryPage>(borrowingDB, auth, bookDB);
             break;
         case PageType::Borrowings:
-            currentPage = std::make_unique<BorrowingsPage>(borrowingDB);
+            currentPage = std::make_unique<BorrowingsPage>(borrowingDB, bookDB);
             break;
         case PageType::Members:
-            currentPage = std::make_unique<MembersPage>(userDB);
+            currentPage = std::make_unique<MembersPage>(userDB, [this](User u) {this->setPageEditUser(u);});
             break;
         case PageType::Librarians:
-            currentPage = std::make_unique<LibrariansPage>(userDB);
+            currentPage = std::make_unique<LibrariansPage>(userDB, 
+                [this](User u) {this->setPageEditUser(u);}, 
+                [this]() {this->setPage(PageType::RegisterLibrarianPage, std::make_shared<RegisterPageState>());}
+            );
+            break;
+        case PageType::RegisterLibrarianPage:
+            currentPage = std::make_unique<RegisterLibrarianPage>(auth, [this]() {this->setPage(PageType::Librarians, nullptr);});
             break;
         case PageType::Statistics:
             currentPageState = std::make_shared<StatisticsPageState>();

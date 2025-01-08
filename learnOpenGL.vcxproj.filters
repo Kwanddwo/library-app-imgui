@@ -49,6 +49,9 @@
     <Filter Include="Header Files\interface\pages\admin">
       <UniqueIdentifier>{848af697-09b4-408b-bb16-992067472762}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\interface\pages\books">
+      <UniqueIdentifier>{9f8f0b2e-6c9b-4911-aebf-0be5a6422aa8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="glad.c">
@@ -84,11 +87,11 @@
     <ClCompile Include="InterfaceManager.hpp">
       <Filter>Header Files\interface</Filter>
     </ClCompile>
-    <ClCompile Include="BorrowFormPage.hpp">
-      <Filter>Header Files\interface\pages\member</Filter>
-    </ClCompile>
     <ClCompile Include="BorrowingsPage.hpp">
       <Filter>Header Files\interface\pages\librarian</Filter>
+    </ClCompile>
+    <ClCompile Include="BooksPage.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -149,9 +152,6 @@
     <ClInclude Include="BorrowingsHistoryPage.hpp">
       <Filter>Header Files\interface\pages\member</Filter>
     </ClInclude>
-    <ClInclude Include="BooksPage.hpp">
-      <Filter>Header Files\interface\pages</Filter>
-    </ClInclude>
     <ClInclude Include="LibrariansPage.hpp">
       <Filter>Header Files\interface\pages\admin</Filter>
     </ClInclude>
@@ -160,6 +160,18 @@
     </ClInclude>
     <ClInclude Include="MembersPage.hpp">
       <Filter>Header Files\interface\pages\librarian</Filter>
+    </ClInclude>
+    <ClInclude Include="RegisterLibrarianPage.hpp">
+      <Filter>Header Files\interface\pages\admin</Filter>
+    </ClInclude>
+    <ClInclude Include="EditUserPage.hpp">
+      <Filter>Header Files\interface\pages\librarian</Filter>
+    </ClInclude>
+    <ClInclude Include="BookEditeForm.hpp">
+      <Filter>Header Files\interface\pages\librarian</Filter>
+    </ClInclude>
+    <ClInclude Include="BooksPage.hpp">
+      <Filter>Header Files\interface\pages\books</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
