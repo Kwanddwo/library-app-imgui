@@ -84,11 +84,11 @@
     <ClCompile Include="InterfaceManager.hpp">
       <Filter>Header Files\interface</Filter>
     </ClCompile>
-    <ClCompile Include="BorrowFormPage.hpp">
-      <Filter>Header Files\interface\pages\member</Filter>
-    </ClCompile>
     <ClCompile Include="BorrowingsPage.hpp">
       <Filter>Header Files\interface\pages\librarian</Filter>
+    </ClCompile>
+    <ClCompile Include="BooksPage.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -149,9 +149,6 @@
     <ClInclude Include="BorrowingsHistoryPage.hpp">
       <Filter>Header Files\interface\pages\member</Filter>
     </ClInclude>
-    <ClInclude Include="BooksPage.hpp">
-      <Filter>Header Files\interface\pages</Filter>
-    </ClInclude>
     <ClInclude Include="LibrariansPage.hpp">
       <Filter>Header Files\interface\pages\admin</Filter>
     </ClInclude>
@@ -161,8 +158,22 @@
     <ClInclude Include="MembersPage.hpp">
       <Filter>Header Files\interface\pages\librarian</Filter>
     </ClInclude>
-    <ClInclude Include="EditUserPage.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="RegisterLibrarianPage.hpp">
+      <Filter>Header Files\interface\pages\admin</Filter>
     </ClInclude>
+    <ClInclude Include="EditUserPage.hpp">
+      <Filter>Header Files\interface\pages\librarian</Filter>
+    </ClInclude>
+    <ClInclude Include="BookEditeForm.hpp">
+      <Filter>Header Files\interface\pages\librarian</Filter>
+    </ClInclude>
+    <ClInclude Include="BooksPage.hpp">
+      <Filter>Header Files\interface\pages</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Roboto-Medium.ttf">
+      <Filter>Resource Files</Filter>
+    </Font>
   </ItemGroup>
 </Project>

@@ -24,8 +24,21 @@ int main() {
         UserDAO userdb(dbconn);
         BookDAO bookdb(dbconn);
 		BorrowingDAO borrowingdb(dbconn);
+		CategoryDAO categorydb(dbconn);
+		LanguageDAO languagedb(dbconn);
+		EditorDAO editordb(dbconn);
+		AuthorDAO authordb(dbconn);
         Auth auth = Auth(userdb);
-        InterfaceApp uiManager(auth, userdb, bookdb, borrowingdb);
+        InterfaceApp uiManager(
+            auth, 
+            userdb, 
+            bookdb, 
+            borrowingdb,
+			categorydb,
+			languagedb,
+			editordb,
+			authordb
+        );
 
         if (!glfwInit()) {
             std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -57,6 +70,7 @@ int main() {
         ImGui::StyleColorsDark();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
+        io.Fonts->AddFontFromFileTTF("Roboto-Medium.ttf", 16.0f);
 
         // Background Color
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);

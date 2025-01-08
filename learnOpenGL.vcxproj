@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BooksPage.cpp" />
     <ClCompile Include="BorrowingsPage.hpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -194,10 +195,14 @@
     <ClInclude Include="MembersPage.hpp" />
     <ClInclude Include="Models.hpp" />
     <ClInclude Include="Page.hpp" />
+    <ClInclude Include="RegisterLibrarianPage.hpp" />
     <ClInclude Include="RegisterPage.hpp" />
     <ClInclude Include="sha256\sha256.h" />
     <ClInclude Include="ProfilePage.hpp" />
     <ClInclude Include="StatisticsPage.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="Roboto-Medium.ttf" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

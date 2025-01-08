@@ -67,7 +67,8 @@ public:
     }
 
     void deleteUser(int id) {
-        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");    
+
         auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("DELETE FROM users WHERE id = ?"));
         pstmt->setInt(1, id);
@@ -82,7 +83,7 @@ public:
         std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
 
         if (!res->next()) {
-            throw std::runtime_error("ID not found");
+            return User();
         }
 
         User user(
@@ -144,6 +145,222 @@ public:
         std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
         return res->next();
     }
+    User most_activeUser(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(*) AS user_count "
+                            "FROM users u "
+                            "JOIN borrowings br ON u.id = br.clientId ";
+
+        if (range == "past month") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        } else if (range == "past year") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        } else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY user_count DESC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+           std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        //cout testing
+           
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+
+        }
+
+        throw std::runtime_error("No active users found for the given range: " + range);
+    }
+    User least_activeUser(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(*) AS user_count "
+            "FROM users u "
+            "JOIN borrowings br ON u.id = br.clientId ";
+
+        if (range == "past month") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "past year") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY user_count ASC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+        }
+
+        return User();
+    }
+
+    User most_activeLibrarian(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(*) AS user_count "
+            "FROM users u "
+            "JOIN borrowings br ON u.id = br.librarianId ";
+
+        if (range == "past month") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "past year") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY user_count DESC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+        }
+
+        return User();
+    }
+
+    User least_activeLibrarian(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(*) AS user_count "
+            "FROM users u "
+            "JOIN borrowings br ON u.id = br.librarianId ";
+
+        if (range == "past month") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "past year") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY user_count ASC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+        }
+
+        return User();
+    }
+
+    User most_unfaithfulUser(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(u.id) AS unfaithful_count "
+            "FROM users u "
+            "JOIN borrowings br ON u.id = br.clientId "
+            "WHERE (br.status = 'not returned' AND NOW() > br.dateIntendedReturn) "
+            "OR br.dateActualReturn > br.dateIntendedReturn ";
+
+        if (range == "past month") {
+            query += "AND br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "past year") {
+            query += "AND br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY unfaithful_count DESC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+        }
+
+        return User();
+    }
+
+    User most_trustedUser(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(u.id) AS borrow_count "
+            "FROM users u "
+            "JOIN borrowings br ON u.id = br.clientId "
+            "WHERE (br.status = 'returned' AND br.dateActualReturn <= br.dateIntendedReturn) "
+            "OR (br.status = 'not returned' AND NOW() < br.dateIntendedReturn) ";
+
+        if (range == "past month") {
+            query += "AND br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "past year") {
+            query += "AND br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range value, using default (of all time): " + range);
+        }
+
+        query += "GROUP BY u.id ORDER BY borrow_count DESC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return User(
+                res->getInt("id"),
+                res->getString("email"),
+                res->getString("firstName"),
+                res->getString("lastName"),
+                User::stringToUserRole(res->getString("userRole"))
+            );
+        }
+
+        return User();
+    }
+
+
+ 
 };
 
 class AuthorDAO : public BaseDAO {
@@ -268,7 +485,6 @@ public:
 
         return editor;
     }
-
     std::vector<Editor> findAllEditors() {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
@@ -408,11 +624,12 @@ public:
         return category;
     }
 
-    std::vector<Category> findAllCategories() {
+    std::vector<Category> findAllCategories(std::string type="category OR type = \'genre\'") {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
-        std::unique_ptr<sql::Statement> stmt(conn->createStatement());
-        std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM categories;"));
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("SELECT * FROM categories where type = ?;"));
+        pstmt->setString(1, type);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
         std::vector<Category> vCategory;
         while (res->next()) {
             Category category(
@@ -496,6 +713,36 @@ public:
         return book;
     }
 
+    Book findBookByIsbn(std::string isbn) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("SELECT * FROM books WHERE isbn = ?"));
+        pstmt->setString(1, isbn);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (!res->next()) {
+            throw std::runtime_error("ISBN not found");
+        }
+
+		int id = res->getInt("id");
+
+        Book book(
+            id,
+            isbn,
+            res->getString("title"),
+            res->getInt("pubYear"),
+            res->getInt("numAvailableCopies"),
+            res->getInt("nbrPages"),
+            LanguageDAO(db).findLanguageById(res->getInt("languageId")),
+            EditorDAO(db).findEditorById(res->getInt("editorId")),
+            findAuthorsByBookId(id),
+            findCategoriesByBookId(id, "category"),
+            findCategoriesByBookId(id, "genre")
+        );
+
+        return book;
+    }
+
     std::vector<Book> findAllBooks() {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
@@ -521,7 +768,98 @@ public:
         return vBook;
     }
 
-private:
+
+    int getNumberOfBooks(const std::string& lang = "", const std::string& cat = "", const std::string& gen = "") {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query = "SELECT COUNT(*) FROM books b";
+
+        if (!cat.empty() || !gen.empty()) {
+            query += " JOIN book_categories bc ON b.id = bc.bookId";
+            query += " JOIN categories c ON c.id = bc.categoryId";
+        }
+        if (!lang.empty()) {
+            query += " JOIN languages l ON l.id = b.languageId";
+        }
+
+        std::string conditions = "";
+        if (!lang.empty()) {
+            conditions += "l.name = ?";
+        }
+        if (!cat.empty()) {
+            if (!conditions.empty()) conditions += " AND ";
+            conditions += "c.type = 'category' AND c.name = ?";
+        }
+        if (!gen.empty()) {
+            if (!conditions.empty()) conditions += " AND ";
+            conditions += "c.type = 'genre' AND c.name = ?";
+        }
+
+        if (!conditions.empty()) {
+            query += " WHERE " + conditions;
+        }
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        int paramIndex = 1;
+
+        if (!lang.empty()) {
+            pstmt->setString(paramIndex++, lang);
+        }
+        if (!cat.empty()) {
+            pstmt->setString(paramIndex++, cat);
+        }
+        if (!gen.empty()) {
+            pstmt->setString(paramIndex++, gen);
+        }
+
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+        res->next();
+        return res->getInt(1);
+    }
+
+    Book most_borrowed_book_in_xperiod(const std::string& range) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::string query =
+            "SELECT b.*, COUNT(br.id) AS borrow_count "
+            "FROM books b "
+            "JOIN borrowings br ON b.id = br.bookId ";
+
+        if (range == "last month") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
+        }
+        else if (range == "last year") {
+            query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
+        }
+        else if (range != "of all time") {
+            throw std::invalid_argument("Invalid range provided: " + range);
+        }
+
+        query += "GROUP BY b.id ORDER BY borrow_count DESC LIMIT 1";
+
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(query));
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (res->next()) {
+            return Book(
+                res->getInt("id"),
+                res->getString("isbn"),
+                res->getString("title"),
+                res->getInt("pubYear"),
+                res->getInt("numAvailableCopies"),
+                res->getInt("nbrPages"),
+                LanguageDAO(db).findLanguageById(res->getInt("languageId")),
+                EditorDAO(db).findEditorById(res->getInt("editorId")),
+                findAuthorsByBookId(res->getInt("id")),
+                findCategoriesByBookId(res->getInt("id"), "category"),
+                findCategoriesByBookId(res->getInt("id"), "genre")
+            );
+        }
+
+        return Book();
+
+    }
+
     std::vector<Author> findAuthorsByBookId(int bookId) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
@@ -559,6 +897,41 @@ private:
         }
         return categories;
     }
+
+	void addAuthorsToBook(int bookId, const std::vector<int>& authorIds) {
+		if (!db.isConnected()) throw std::runtime_error("Database not connected");
+		auto conn = db.getConnection();
+		for (const auto& authorId : authorIds) {
+			std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("INSERT INTO authored_by (bookId, authorId) VALUES (?, ?)"));
+			pstmt->setInt(1, bookId);
+			pstmt->setInt(2, authorId);
+			pstmt->execute();
+		}
+	}
+	void addCategoriesToBook(int bookId, const std::vector<int>& categoryIds) {
+		if (!db.isConnected()) throw std::runtime_error("Database not connected");
+		auto conn = db.getConnection();
+		for (const auto& categoryId : categoryIds) {
+			std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("INSERT INTO book_categories (bookId, categoryId) VALUES (?, ?)"));
+			pstmt->setInt(1, bookId);
+			pstmt->setInt(2, categoryId);
+			pstmt->execute();
+		}
+	}
+	void clearAuthorsFromBook(int bookId) {
+		if (!db.isConnected()) throw std::runtime_error("Database not connected");
+		auto conn = db.getConnection();
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("DELETE FROM authored_by WHERE bookId = ?"));
+		pstmt->setInt(1, bookId);
+		pstmt->execute();
+	}
+	void clearCategoriesFromBook(int bookId) {
+		if (!db.isConnected()) throw std::runtime_error("Database not connected");
+		auto conn = db.getConnection();
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("DELETE FROM book_categories WHERE bookId = ?"));
+		pstmt->setInt(1, bookId);
+		pstmt->execute();
+	}
 };
 
 class BorrowingDAO : public BaseDAO {
@@ -604,6 +977,16 @@ public:
         pstmt->setInt(6, librarianId);
         pstmt->setInt(7, bookId);
         pstmt->setInt(8, id);
+        pstmt->execute();
+    }
+
+    void updateBorrowingStatus(int id, const std::string status) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(
+            "UPDATE borrowings SET status = ? WHERE id = ?"));
+        pstmt->setString(1, status);
+        pstmt->setInt(2, id);
         pstmt->execute();
     }
 

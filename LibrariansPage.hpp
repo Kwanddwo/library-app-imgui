@@ -8,9 +8,11 @@ struct LibrariansPageState : public PageState {
 class LibrariansPage : public Page {
     vector<User> librarians;
 	UserDAO& userDB;
+    std::function<void()> onCreate;
     std::function<void(User)> onEdit;
 
     void setLibrarians() {
+		librarians.clear();
         vector<User> users = userDB.findAllUsers();
         for (auto& user : users) {
             if (user.getRole() == UserRole::LIBRARIAN) {
@@ -25,7 +27,8 @@ class LibrariansPage : public Page {
     }
 
 public:
-    LibrariansPage(UserDAO& userDB, std::function<void(User)> onEdit): userDB(userDB), onEdit(onEdit) {
+    LibrariansPage(UserDAO& userDB, std::function<void(User)> onEdit, std::function<void()> onCreate): 
+        userDB(userDB), onEdit(onEdit), onCreate(onCreate) {
         strncpy_s(title, "Librarians", sizeof(title));
         setLibrarians();
     }
@@ -36,7 +39,7 @@ public:
         // Otherwise by default the table will fit all available space, like a BeginChild() call.
         const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
         const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
-        ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 8);
+        ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 12);
         if (ImGui::BeginTable("Librarians List", 5, flags, outer_size))
         {
             ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
@@ -47,8 +50,8 @@ public:
             ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_None);
             ImGui::TableHeadersRow();
 
-            for (auto& librarian : librarians)
-            {
+            for (auto& librarian : librarians) {
+
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
                 ImGui::Text("%d", librarian.getId());
@@ -67,5 +70,9 @@ public:
             }
             ImGui::EndTable();
         }
+
+		if (ImGui::Button("Add Librarian")) {
+            onCreate();
+		}
     }
 };
