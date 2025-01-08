@@ -82,7 +82,7 @@ public:
         std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
 
         if (!res->next()) {
-            throw std::runtime_error("ID not found");
+            return User();
         }
 
         User user(
@@ -408,11 +408,12 @@ public:
         return category;
     }
 
-    std::vector<Category> findAllCategories() {
+    std::vector<Category> findAllCategories(std::string type="category OR type = \'genre\'") {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
-        std::unique_ptr<sql::Statement> stmt(conn->createStatement());
-        std::unique_ptr<sql::ResultSet> res(stmt->executeQuery("SELECT * FROM categories;"));
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("SELECT * FROM categories where type = ?;"));
+        pstmt->setString(1, type);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
         std::vector<Category> vCategory;
         while (res->next()) {
             Category category(
@@ -496,6 +497,36 @@ public:
         return book;
     }
 
+    Book findBookByIsbn(std::string isbn) {
+        if (!db.isConnected()) throw std::runtime_error("Database not connected");
+        auto conn = db.getConnection();
+        std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("SELECT * FROM books WHERE isbn = ?"));
+        pstmt->setString(1, isbn);
+        std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+        if (!res->next()) {
+            throw std::runtime_error("ISBN not found");
+        }
+
+		int id = res->getInt("id");
+
+        Book book(
+            id,
+            isbn,
+            res->getString("title"),
+            res->getInt("pubYear"),
+            res->getInt("numAvailableCopies"),
+            res->getInt("nbrPages"),
+            LanguageDAO(db).findLanguageById(res->getInt("languageId")),
+            EditorDAO(db).findEditorById(res->getInt("editorId")),
+            findAuthorsByBookId(id),
+            findCategoriesByBookId(id, "category"),
+            findCategoriesByBookId(id, "genre")
+        );
+
+        return book;
+    }
+
     std::vector<Book> findAllBooks() {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
@@ -521,7 +552,6 @@ public:
         return vBook;
     }
 
-private:
     std::vector<Author> findAuthorsByBookId(int bookId) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
@@ -559,6 +589,41 @@ private:
         }
         return categories;
     }
+
+	void addAuthorsToBook(int bookId, const std::vector<int>& authorIds) {
+		if (!db.isConnected()) throw std::runtime_error("Database not connected");
+		auto conn = db.getConnection();
+		for (const auto& authorId : authorIds) {
+			std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("INSERT INTO authored_by (bookId, authorId) VALUES (?, ?)"));
+			pstmt->setInt(1, bookId);
+			pstmt->setInt(2, authorId);
+			pstmt->execute();
+		}
+	}
+	void addCategoriesToBook(int bookId, const std::vector<int>& categoryIds) {
+		if (!db.isConnected()) throw std::runtime_error("Database not connected");
+		auto conn = db.getConnection();
+		for (const auto& categoryId : categoryIds) {
+			std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("INSERT INTO book_categories (bookId, categoryId) VALUES (?, ?)"));
+			pstmt->setInt(1, bookId);
+			pstmt->setInt(2, categoryId);
+			pstmt->execute();
+		}
+	}
+	void clearAuthorsFromBook(int bookId) {
+		if (!db.isConnected()) throw std::runtime_error("Database not connected");
+		auto conn = db.getConnection();
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("DELETE FROM authored_by WHERE bookId = ?"));
+		pstmt->setInt(1, bookId);
+		pstmt->execute();
+	}
+	void clearCategoriesFromBook(int bookId) {
+		if (!db.isConnected()) throw std::runtime_error("Database not connected");
+		auto conn = db.getConnection();
+		std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement("DELETE FROM book_categories WHERE bookId = ?"));
+		pstmt->setInt(1, bookId);
+		pstmt->execute();
+	}
 };
 
 class BorrowingDAO : public BaseDAO {

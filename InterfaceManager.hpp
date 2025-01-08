@@ -35,6 +35,10 @@ class InterfaceApp {
     UserDAO& userDB;
     BookDAO& bookDB;
     BorrowingDAO& borrowingDB;
+	CategoryDAO categoryDB;
+	LanguageDAO languageDB;
+	EditorDAO editorDB;
+	AuthorDAO authorDB;
     AppState state;
     PageType currentPageType;
     std::unique_ptr<Page> currentPage;
@@ -111,8 +115,8 @@ class InterfaceApp {
     }
 
 public:
-    InterfaceApp(Auth& auth, UserDAO& userDB, BookDAO& bookDB, BorrowingDAO& borrowingDB) :
-        auth(auth), userDB(userDB), bookDB(bookDB), borrowingDB(borrowingDB) {
+    InterfaceApp(Auth& auth, UserDAO& userDB, BookDAO& bookDB, BorrowingDAO& borrowingDB, CategoryDAO& categoryDB, LanguageDAO& languageDB, EditorDAO& editorDB, AuthorDAO& authorDB) :
+        auth(auth), userDB(userDB), bookDB(bookDB), borrowingDB(borrowingDB), categoryDB(categoryDB), languageDB(languageDB), editorDB(editorDB), authorDB(authorDB) {
         this->setPage(PageType::Login, std::make_shared<LoginPageState>());
     }
 
@@ -135,7 +139,11 @@ public:
         currentPage = std::make_unique<BookEditeFormPage>(
             bookDB,
             [this]() { this->setPage(PageType::Books, nullptr); },
-            book
+            book,
+			categoryDB,
+			languageDB,
+			editorDB,
+			authorDB
         );
     }
 
@@ -164,13 +172,18 @@ public:
                 bookDB,
                 auth, 
                 borrowingDB,
-                [this](Book book) { this->setPageEditBook(book); });
+                categoryDB,
+                languageDB,
+				editorDB,
+                authorDB,
+                [this](Book book) { this->setPageEditBook(book); }
+            );
             break;
         case PageType::BorrowingsHistory:
-            currentPage = std::make_unique<BorrowingsHistoryPage>(borrowingDB, auth);
+            currentPage = std::make_unique<BorrowingsHistoryPage>(borrowingDB, auth, bookDB);
             break;
         case PageType::Borrowings:
-            currentPage = std::make_unique<BorrowingsPage>(borrowingDB);
+            currentPage = std::make_unique<BorrowingsPage>(borrowingDB, bookDB);
             break;
         case PageType::Members:
             currentPage = std::make_unique<MembersPage>(userDB, [this](User u) {this->setPageEditUser(u);});

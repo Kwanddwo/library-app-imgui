@@ -8,9 +8,15 @@ struct BorrowingsPageState : public PageState {
 class BorrowingsPage : public Page {
     std::vector<Borrowing> borrowings;
     BorrowingDAO& borrowingDB;
+	BookDAO& bookDB;
 
     void setBorrowings() {
         borrowings = borrowingDB.findAllBorrowings();
+    }
+
+    void incrementAvailableCopies(Book book) {
+        book.setNumAvailableCopies(book.getNumAvailableCopies() + 1);
+        bookDB.updateBook(book.getId(), book.getIsbn(), book.getTitle(), book.getPubYear(), book.getNumAvailableCopies(), book.getNbrPages(), book.getLanguage().getId(), book.getEditor().getId());
     }
 
     void verifyReservation(Borrowing b) {
@@ -18,15 +24,17 @@ class BorrowingsPage : public Page {
         setBorrowings();
     }
     void cancelBorrowing(Borrowing b) {
+		incrementAvailableCopies(b.getBook());
         borrowingDB.updateBorrowingStatus(b.getId(), "cancelled");
         setBorrowings();
     }
     void verifyReturn(Borrowing b) {
+		incrementAvailableCopies(b.getBook());
         borrowingDB.updateBorrowingStatus(b.getId(), "returned");
         setBorrowings();
     }
 public:
-    BorrowingsPage(BorrowingDAO& borrowingDB) : borrowingDB(borrowingDB) {
+    BorrowingsPage(BorrowingDAO& borrowingDB, BookDAO& bookDB) : borrowingDB(borrowingDB), bookDB(bookDB) {
         strncpy_s(title, "Borrowings", sizeof(title));
         setBorrowings();
     }
@@ -38,7 +46,7 @@ public:
         const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
         const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
         ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 8);
-        if (ImGui::BeginTable("Borrowings List", 7, flags, outer_size))
+        if (ImGui::BeginTable("Borrowings List", 8, flags, outer_size))
         {
             ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
             ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_None);
@@ -47,6 +55,7 @@ public:
             ImGui::TableSetupColumn("Actual Return Date", ImGuiTableColumnFlags_None);
             ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_None);
             ImGui::TableSetupColumn("Client", ImGuiTableColumnFlags_None);
+            ImGui::TableSetupColumn("Book", ImGuiTableColumnFlags_None);
             ImGui::TableSetupColumn("Actions", ImGuiTableColumnFlags_None);
             ImGui::TableHeadersRow();
 
@@ -66,15 +75,17 @@ public:
                 ImGui::TableNextColumn();
                 ImGui::Text(borrowing.getClient().getFullName().c_str());
                 ImGui::TableNextColumn();
+                ImGui::Text(borrowing.getBook().getTitle().c_str());
+                ImGui::TableNextColumn();
                 if (borrowing.getStatus() == "reserved") {
-                    if (ImGui::Button(("verify##" + std::to_string(borrowing.getId())).c_str()))
+                    if (ImGui::Button(("Verify##" + std::to_string(borrowing.getId())).c_str()))
                         verifyReservation(borrowing);
                     ImGui::SameLine();
-                    if (ImGui::Button(("cancel##" + std::to_string(borrowing.getId())).c_str()))
+                    if (ImGui::Button(("Cancel##" + std::to_string(borrowing.getId())).c_str()))
                         cancelBorrowing(borrowing);
                 }
                 if (borrowing.getStatus() == "not returned") {
-                    if (ImGui::Button(("verify##" + std::to_string(borrowing.getId())).c_str()))
+                    if (ImGui::Button(("Mark Returned##" + std::to_string(borrowing.getId())).c_str()))
                         verifyReturn(borrowing);
                 }
             }
