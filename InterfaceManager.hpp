@@ -3,6 +3,7 @@
 #include "imgui.h"
 #include "Authentification.hpp"
 #include <memory>
+#include "Models.hpp"
 
 #include "LoginPage.hpp"
 #include "RegisterPage.hpp"
@@ -30,6 +31,7 @@
 #endif
 
 class InterfaceApp {
+    Book book;
     Auth& auth;
     UserDAO& userDB;
     BookDAO& bookDB;
@@ -130,6 +132,7 @@ public:
         );
     }
 
+
     void setPage(PageType pageType, std::shared_ptr<PageState> pageState) {
         currentPageType = pageType;
         currentPageState = pageState;
@@ -156,9 +159,7 @@ public:
                 auth, 
                 borrowingDB,
                 [this](Book book) {
-                    auto be = std::make_shared<BookEditePageState>(book);
-                    this->setPage(PageType::BookEditeForm, be);
-                });
+                    this->setPage(PageType::BookEditeForm,nullptr);});
             break;
         case PageType::BorrowingsHistory:
             currentPage = std::make_unique<BorrowingsHistoryPage>(borrowingDB, auth);
@@ -177,7 +178,7 @@ public:
             break;
         case PageType::BookEditeForm:
             currentPage = std::make_unique<BookEditeFormPage>(bookDB,
-                [this]() { this->setPage(PageType::Books, nullptr); });
+                [this]() { this->setPage(PageType::Books, nullptr); },book);
         }
     }
 

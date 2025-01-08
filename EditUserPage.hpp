@@ -13,8 +13,7 @@ class EditUserPage : public Page {
 public:
     EditUserPage(UserDAO& userDB, std::function<void(User)> onReturn, User user) : onReturn(onReturn), user(user), userDB(userDB) {
         strncpy_s(title, "Edit User", sizeof(title));
-        strncpy_s(userFirstName, user.getFirstName().c_str(), 50);
-        strncpy_s(userLastName, user.getLastName().c_str(), 50);
+        
         strncpy_s(userEmail, user.getEmail().c_str(), 100);
     }
 

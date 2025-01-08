@@ -2,8 +2,14 @@
 #include "Page.hpp"
 #include "Models.hpp"
 
+struct BookEditePageState : public PageState {
+    Book book;
+    BookEditePageState(Book book) : book(book) {};
+};
+
 class BookEditeFormPage : public Page {
     BookDAO& bookDB;
+    Book book;
     int bookId = -1; 
     char isbn[20] = "";
     char title[100] = "";
@@ -18,7 +24,7 @@ class BookEditeFormPage : public Page {
     std::function<void()> onEdit;
 
 public:
-    BookEditeFormPage(BookDAO& bookDB, std::function<void()> onEdit) : bookDB(bookDB),onEdit(onEdit) {
+    BookEditeFormPage(BookDAO& bookDB, std::function<void()> onEdit,Book book) : bookDB(bookDB),onEdit(onEdit),book(book) {
         strncpy_s(title, "Edit Book Info", sizeof(title));
     }
 
@@ -26,7 +32,6 @@ public:
         ImGui::Text("Edit Book Information");
 
         // Input fields for book details
-        ImGui::InputInt("Book ID", &bookId);
         ImGui::InputText("ISBN", isbn, sizeof(isbn));
         ImGui::InputText("Title", title, sizeof(title));
         ImGui::InputInt("Publication Year", &pubYear);
@@ -38,7 +43,7 @@ public:
         // Update button
         if (ImGui::Button("Update Book")) {
             try {
-                bookDB.updateBook(bookId, std::string(isbn), std::string(title), pubYear, numAvailableCopies, nbrPages, languageId, editorId);
+                bookDB.updateBook(book.getId(), std::string(isbn), std::string(title), pubYear, numAvailableCopies, nbrPages, languageId, editorId);
                 onEdit();
             }
             catch (const std::exception& e) {
