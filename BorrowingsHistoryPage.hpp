@@ -27,7 +27,7 @@ public:
     void render(AppState& state, std::shared_ptr<PageState> pageState) override {
         const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
         const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
-        ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 8);
+        ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 12);
         if (ImGui::BeginTable("Borrowings History List", 7, flags, outer_size))
         {
             ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible

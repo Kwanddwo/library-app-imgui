@@ -201,6 +201,9 @@
     <ClInclude Include="ProfilePage.hpp" />
     <ClInclude Include="StatisticsPage.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <Font Include="Roboto-Medium.ttf" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

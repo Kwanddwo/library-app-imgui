@@ -45,7 +45,7 @@ public:
         // Otherwise by default the table will fit all available space, like a BeginChild() call.
         const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
         const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
-        ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 8);
+        ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 12);
         if (ImGui::BeginTable("Borrowings List", 8, flags, outer_size))
         {
             ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible

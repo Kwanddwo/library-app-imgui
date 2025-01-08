@@ -148,7 +148,7 @@ public:
     User most_activeUser(const std::string& range) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
-        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(*) AS user_count "
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(*) AS user_count "
                             "FROM users u "
                             "JOIN borrowings br ON u.id = br.clientId ";
 
@@ -183,7 +183,7 @@ public:
     User least_activeUser(const std::string& range) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
-        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(*) AS user_count "
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(*) AS user_count "
             "FROM users u "
             "JOIN borrowings br ON u.id = br.clientId ";
 
@@ -212,13 +212,13 @@ public:
             );
         }
 
-        throw std::runtime_error("No inactive users found for the given range: " + range);
+        return User();
     }
 
     User most_activeLibrarian(const std::string& range) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
-        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(*) AS user_count "
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(*) AS user_count "
             "FROM users u "
             "JOIN borrowings br ON u.id = br.librarianId ";
 
@@ -247,13 +247,13 @@ public:
             );
         }
 
-        throw std::runtime_error("No active librarians found for the given range: " + range);
+        return User();
     }
 
     User least_activeLibrarian(const std::string& range) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
-        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(*) AS user_count "
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(*) AS user_count "
             "FROM users u "
             "JOIN borrowings br ON u.id = br.librarianId ";
 
@@ -282,13 +282,13 @@ public:
             );
         }
 
-        throw std::runtime_error("No inactive librarians found for the given range: " + range);
+        return User();
     }
 
     User most_unfaithfulUser(const std::string& range) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
-        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(br.id) AS unfaithful_count "
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(u.id) AS unfaithful_count "
             "FROM users u "
             "JOIN borrowings br ON u.id = br.clientId "
             "WHERE (br.status = 'not returned' AND NOW() > br.dateIntendedReturn) "
@@ -319,13 +319,13 @@ public:
             );
         }
 
-        throw std::runtime_error("No unfaithful users found for the given range: " + range);
+        return User();
     }
 
     User most_trustedUser(const std::string& range) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
-        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, COUNT(br.id) AS borrow_count "
+        std::string query = "SELECT u.id, u.email, u.firstName, u.lastName, u.userRole, COUNT(u.id) AS borrow_count "
             "FROM users u "
             "JOIN borrowings br ON u.id = br.clientId "
             "WHERE (br.status = 'returned' AND br.dateActualReturn <= br.dateIntendedReturn) "
@@ -356,7 +356,7 @@ public:
             );
         }
 
-        throw std::runtime_error("No trusted users found for the given range: " + range);
+        return User();
     }
 
 
@@ -767,7 +767,9 @@ public:
         }
         return vBook;
     }
-    int nbBooks(const std::string& lang = "", const std::string& cat = "", const std::string& gen = "") {
+
+
+    int getNumberOfBooks(const std::string& lang = "", const std::string& cat = "", const std::string& gen = "") {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
         std::string query = "SELECT COUNT(*) FROM books b";
@@ -823,13 +825,13 @@ public:
             "FROM books b "
             "JOIN borrowings br ON b.id = br.bookId ";
 
-        if (range == "Last Month") {
+        if (range == "last month") {
             query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 MONTH) ";
         }
-        else if (range == "Last Year") {
+        else if (range == "last year") {
             query += "WHERE br.dateBorrowed > DATE_SUB(NOW(), INTERVAL 1 YEAR) ";
         }
-        else if (range != "Of All Time") {
+        else if (range != "of all time") {
             throw std::invalid_argument("Invalid range provided: " + range);
         }
 
@@ -854,7 +856,7 @@ public:
             );
         }
 
-        throw std::runtime_error("No books found for the specified range");
+        return Book();
 
     }
 

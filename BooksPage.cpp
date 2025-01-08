@@ -54,7 +54,7 @@ vector<Book> BooksPage::filterBooks(int radio, string search_input) {
 void BooksPage::render(AppState& state, std::shared_ptr<PageState> pageState) {
     const float TEXT_BASE_WIDTH = ImGui::CalcTextSize("A").x;
     const float TEXT_BASE_HEIGHT = ImGui::GetTextLineHeightWithSpacing();
-    ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 8);
+    ImVec2 outer_size = ImVec2(0.0f, TEXT_BASE_HEIGHT * 12);
 
     static int e = 0;
     ImGui::RadioButton("Title##r", &e, 0); ImGui::SameLine();

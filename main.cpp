@@ -70,6 +70,7 @@ int main() {
         ImGui::StyleColorsDark();
         ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init("#version 330");
+        io.Fonts->AddFontFromFileTTF("Roboto-Medium.ttf", 16.0f);
 
         // Background Color
         glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
