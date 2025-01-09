@@ -122,7 +122,7 @@ public:
                         verifyReservation(borrowing);
                     ImGui::SameLine();
                     if (ImGui::Button(("Cancel##" + std::to_string(borrowing.getId())).c_str()))
-                        cancelBorrowing(borrowing,borrowing.getDateBorrowed(),borrowing.getDateIntendedReturn(),borrowing.getDateActualReturn());
+                        cancelBorrowing(borrowing,getDateOfBorrowOrReturn(), getExpectedDateOfReturn(),getDateOfBorrowOrReturn());
                 }
                 if (borrowing.getStatus() == "not returned") {
                     if (ImGui::Button(("Mark Returned##" + std::to_string(borrowing.getId())).c_str()))
