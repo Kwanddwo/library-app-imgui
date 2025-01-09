@@ -1,4 +1,5 @@
-﻿  BorrowingsPage.hpp
+﻿  BooksPage.cpp
+  BorrowingsPage.hpp
   imgui.cpp
   imgui_demo.cpp
   imgui_draw.cpp
@@ -7,14 +8,20 @@
   imgui_tables.cpp
   imgui_widgets.cpp
   InterfaceManager.hpp
+C:\Users\p\source\repos\library-app-imgui2\StatisticsPage.hpp(115,110): warning C4267: 'argument' : conversion de 'size_t' en 'int', perte possible de données
+  (compiler le fichier source 'InterfaceManager.hpp')
+  
   main.cpp
+C:\Users\p\source\repos\library-app-imgui2\StatisticsPage.hpp(115,110): warning C4267: 'argument' : conversion de 'size_t' en 'int', perte possible de données
+  (compiler le fichier source 'main.cpp')
+  
   sha256.cpp
   glad.c
-     Création de la bibliothèque C:\Users\p\Source\Repos\library-app-imgui2\x64\Release\learnOpenGL.lib et de l'objet C:\Users\p\Source\Repos\library-app-imgui2\x64\Release\learnOpenGL.exp
+     Création de la bibliothèque C:\Users\p\source\repos\library-app-imgui2\x64\Release\learnOpenGL.lib et de l'objet C:\Users\p\source\repos\library-app-imgui2\x64\Release\learnOpenGL.exp
 LINK : warning LNK4098: conflit entre la bibliothèque par défaut 'MSVCRTD' et les autres bibliothèques ; utilisez /NODEFAULTLIB:library
   Génération de code en cours
   Previous IPDB not found, fall back to full compilation.
-  All 3130 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 3621 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Fin de la génération du code
 mysqlcppconn-static.lib(mysql_driver.obj) : warning LNK4099: PDB '' n'a pu être trouvé avec 'mysqlcppconn-static.lib(mysql_driver.obj)' ou sur '' ; l'objet sera lié sans informations de débogage
 mysqlcppconn-static.lib(mysql_connection.obj) : warning LNK4099: PDB '' n'a pu être trouvé avec 'mysqlcppconn-static.lib(mysql_connection.obj)' ou sur '' ; l'objet sera lié sans informations de débogage
@@ -59,4 +66,4 @@ glfw3.lib(win32_joystick.obj) : warning LNK4099: PDB '' n'a pu être trouvé ave
 glfw3.lib(null_monitor.obj) : warning LNK4099: PDB '' n'a pu être trouvé avec 'glfw3.lib(null_monitor.obj)' ou sur '' ; l'objet sera lié sans informations de débogage
 glfw3.lib(null_window.obj) : warning LNK4099: PDB '' n'a pu être trouvé avec 'glfw3.lib(null_window.obj)' ou sur '' ; l'objet sera lié sans informations de débogage
 glfw3.lib(null_joystick.obj) : warning LNK4099: PDB '' n'a pu être trouvé avec 'glfw3.lib(null_joystick.obj)' ou sur '' ; l'objet sera lié sans informations de débogage
-  learnOpenGL.vcxproj -> C:\Users\p\Source\Repos\library-app-imgui2\x64\Release\learnOpenGL.exe
+  learnOpenGL.vcxproj -> C:\Users\p\source\repos\library-app-imgui2\x64\Release\learnOpenGL.exe

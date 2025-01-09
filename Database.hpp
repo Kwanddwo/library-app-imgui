@@ -6,6 +6,7 @@
 #include "DatabaseConnection.hpp"
 #include "Models.hpp"
 
+
 class BaseDAO {
 protected:
     DatabaseConnection db;
@@ -980,13 +981,16 @@ public:
         pstmt->execute();
     }
 
-    void updateBorrowingStatus(int id, const std::string status) {
+    void updateBorrowingStatus(int id, const std::string status, const std::string dateborrow, const std::string dateExpectedreturn, const std::string datereturn) {
         if (!db.isConnected()) throw std::runtime_error("Database not connected");
         auto conn = db.getConnection();
         std::unique_ptr<sql::PreparedStatement> pstmt(conn->prepareStatement(
-            "UPDATE borrowings SET status = ? WHERE id = ?"));
+            "UPDATE borrowings SET status = ? , dateBorrowed=STR_TO_DATE(?, '%Y-%m-%d') ,dateIntendedReturn= STR_TO_DATE(?, '%Y-%m-%d') ,dateActualReturn= STR_TO_DATE(?, '%Y-%m-%d') WHERE id = ?"));
         pstmt->setString(1, status);
-        pstmt->setInt(2, id);
+        pstmt->setString(2, dateborrow);
+        pstmt->setString(3, dateExpectedreturn);
+        pstmt->setString(4, datereturn);
+        pstmt->setInt(5, id);
         pstmt->execute();
     }
 

@@ -1,14 +1,54 @@
 #pragma once
 #include "Page.hpp"
+#include <ctime>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <stdexcept>
 
 struct BorrowingsPageState : public PageState {
 
 };
 
 class BorrowingsPage : public Page {
+    std::time_t timestamp;
     std::vector<Borrowing> borrowings;
     BorrowingDAO& borrowingDB;
 	BookDAO& bookDB;
+
+    std::string getDateOfBorrowOrReturn() {
+        std::time_t now = std::time(nullptr);
+        std::tm localTime;
+        if (localtime_s(&localTime, &now) != 0) {
+            throw std::runtime_error("Failed to get local time");
+        }
+
+        std::ostringstream dateStream;
+        dateStream << (localTime.tm_year + 1900) << "-"
+            << std::setw(2) << std::setfill('0') << (localTime.tm_mon + 1) << "-"
+            << std::setw(2) << std::setfill('0') << localTime.tm_mday;
+
+        return dateStream.str();
+    }
+
+    std::string getExpectedDateOfReturn() {
+        std::time_t now = std::time(nullptr);
+
+        now += 10 * 24 * 60 * 60;
+
+        std::tm localTime;
+        if (localtime_s(&localTime, &now) != 0) {
+            throw std::runtime_error("Failed to get local time");
+        }
+
+        std::ostringstream dateStream;
+        dateStream << (localTime.tm_year + 1900) << "-"
+            << std::setw(2) << std::setfill('0') << (localTime.tm_mon + 1) << "-"
+            << std::setw(2) << std::setfill('0') << localTime.tm_mday;
+
+        return dateStream.str();
+    }
+
 
     void setBorrowings() {
         borrowings = borrowingDB.findAllBorrowings();
@@ -20,17 +60,17 @@ class BorrowingsPage : public Page {
     }
 
     void verifyReservation(Borrowing b) {
-        borrowingDB.updateBorrowingStatus(b.getId(), "not returned");
+        borrowingDB.updateBorrowingStatus(b.getId(), "not returned", getDateOfBorrowOrReturn(),getExpectedDateOfReturn(), getExpectedDateOfReturn());
         setBorrowings();
     }
-    void cancelBorrowing(Borrowing b) {
+    void cancelBorrowing(Borrowing b, std::string DateBorrow, std::string DateExpectedReturn, std::string DateReturn) {
 		incrementAvailableCopies(b.getBook());
-        borrowingDB.updateBorrowingStatus(b.getId(), "cancelled");
+        borrowingDB.updateBorrowingStatus(b.getId(), "cancelled",DateBorrow,DateExpectedReturn,DateReturn);
         setBorrowings();
     }
-    void verifyReturn(Borrowing b) {
+    void verifyReturn(Borrowing b, std::string DateBorrow, std::string DateExpectedReturn) {
 		incrementAvailableCopies(b.getBook());
-        borrowingDB.updateBorrowingStatus(b.getId(), "returned");
+        borrowingDB.updateBorrowingStatus(b.getId(), "returned",DateBorrow,DateExpectedReturn, getDateOfBorrowOrReturn());
         setBorrowings();
     }
 public:
@@ -82,11 +122,11 @@ public:
                         verifyReservation(borrowing);
                     ImGui::SameLine();
                     if (ImGui::Button(("Cancel##" + std::to_string(borrowing.getId())).c_str()))
-                        cancelBorrowing(borrowing);
+                        cancelBorrowing(borrowing,borrowing.getDateBorrowed(),borrowing.getDateIntendedReturn(),borrowing.getDateActualReturn());
                 }
                 if (borrowing.getStatus() == "not returned") {
                     if (ImGui::Button(("Mark Returned##" + std::to_string(borrowing.getId())).c_str()))
-                        verifyReturn(borrowing);
+                        verifyReturn(borrowing,borrowing.getDateBorrowed(),borrowing.getDateIntendedReturn());
                 }
             }
             ImGui::EndTable();

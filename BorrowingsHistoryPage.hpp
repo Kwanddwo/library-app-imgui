@@ -58,7 +58,7 @@ public:
                 if (borrowing.getStatus() == "reserved") {
                     ImGui::TableNextColumn();
                     if (ImGui::Button( ("Cancel##" + std::to_string(borrowing.getId())).c_str() )) {
-                        borrowingDB.updateBorrowingStatus(borrowing.getId(), "cancelled");
+                        borrowingDB.updateBorrowingStatus(borrowing.getId(), "cancelled",borrowing.getDateBorrowed(),borrowing.getDateIntendedReturn(),borrowing.getDateActualReturn());
 						incrementAvailableCopies(borrowing.getBook());
                         setBorrowings();
                     }
